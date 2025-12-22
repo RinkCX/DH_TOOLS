@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>匕首之心敌人卡片生成器 (V2.1)</title>
+    <!-- 引入 html2canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Oswald:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* UI 颜色变量 */
+            --bg-body: #f4f6f8;
+            --bg-panel: #ffffff;
+            --primary-ui: #2c3e50;
+            --accent-ui: #8a1c1c;
+            --accent-hover: #a92323;
+            --border-ui: #e1e4e8;
+            --text-main: #333;
+            --text-muted: #666;
+            
+            /* 卡片默认变量 */
+            --card-border-radius: 16px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3, h4 { margin: 0; font-family: 'Oswald', sans-serif; }
+
+        /* --- 布局结构 --- */
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-ui);
+        }
+        .app-header h1 { color: var(--accent-ui); font-size: 2.2rem; }
+        .app-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; font-weight: 500; }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 左右两栏 */
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* --- 左侧：配置表单区 --- */
+        .config-panel {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* 折叠面板样式 */
+        .accordion-item { border-bottom: 1px solid var(--border-ui); }
+        .accordion-header {
+            padding: 15px 20px;
+            background: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary-ui);
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .accordion-header:hover { background: #f0f2f5; }
+        .accordion-header::after { content: '+'; font-size: 1.2rem; color: var(--text-muted); }
+        .accordion-item.active .accordion-header::after { content: '-'; }
+        
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+        .accordion-item.active .accordion-content { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 表单控件美化 */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group { margin-bottom: 15px; }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-ui);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-ui);
+            box-shadow: 0 0 0 3px rgba(138, 28, 28, 0.1);
+        }
+        textarea { min-height: 80px; resize: vertical; }
+
+        /* 颜色选择器组 */
+        .color-group { display: flex; align-items: center; gap: 8px; }
+        .color-group input[type="color"] {
+            width: 40px; height: 40px; border: none; background: none; padding: 0; cursor: pointer;
+        }
+
+        /* 按钮样式 */
+        .btn-group {
+            display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #fafbfc; border-top: 1px solid var(--border-ui); position: sticky; bottom: 0; z-index: 10;
+        }
+        
+        button {
+            background-color: var(--primary-ui);
+            color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center;
+        }
+        button:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.15); opacity: 0.9; }
+        button:active { transform: translateY(0); }
+
+        button.btn-accent { background-color: var(--accent-ui); }
+        button.btn-accent:hover { background-color: var(--accent-hover); }
+        
+        button.btn-outline { background-color: transparent; border: 1px solid var(--border-ui); color: var(--text-main); }
+        button.btn-outline:hover { background-color: #f0f0f0; }
+
+        .add-btn { width: 100%; margin-top: 10px; background-color: #edf2f7; color: var(--primary-ui); }
+        .add-btn:hover { background-color: #e2e8f0; }
+        .remove-btn { background-color: #e53e3e; padding: 5px 10px; font-size: 0.8rem; margin-left: 5px;}
+
+        /* --- 右侧：预览区 --- */
+        .preview-panel { position: sticky; top: 20px; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        /* 预览卡片容器背景 */
+        .card-wrapper {
+            background: #e8eaed; /* 模拟桌面背景 */
+            padding: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            min-height: 600px;
+        }
+
+        /* =========================================
+           核心卡片样式 (优化版)
+           ========================================= */
+        .enemy-card {
+            font-family: 'Crimson Text', serif;
+            width: 500px;
+            background: #fff;
+            border: 2px solid var(--text-main);
+            border-radius: var(--card-border-radius);
+            padding: 20px;
+            position: relative;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
+            color: #222;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 装饰条 */
+        .enemy-decorator-bar {
+            position: absolute; top: 0; left: 0; bottom: 0; width: 14px;
+            background-color: var(--accent-ui);
+            border-radius: 14px 0 0 14px; z-index: 1;
+        }
+
+        /* 卡片头部 */
+        .enemy-header {
+            padding-left: 24px;
+            border-bottom: 2px solid var(--accent-ui);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .enemy-header.has-image { grid-template-columns: 1fr auto; }
+        .enemy-header.npc-mode { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        .enemy-name {
+            font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-bottom: 4px;
+        }
+        .enemy-rank-row { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: #444; }
+        
+        /* 描述区域优化：支持换行 */
+        .enemy-description { 
+            font-style: italic; margin-top: 8px; font-size: 15px; line-height: 1.4; color: #555; 
+            white-space: pre-wrap; /* 关键：保留换行和空格 */
+        }
+
+        .npc-badge {
+            background: var(--primary-ui); color: white; 
+            padding: 2px 8px; border-radius: 4px; font-size: 14px;
+            display: none;
+        }
+        .enemy-header.npc-mode .npc-badge { display: inline-block; }
+
+        /* 立绘区域 */
+        .enemy-image-container {
+            display: none; /* JS控制 */
+            width: 150px; height: 150px; /* 默认值 */
+            align-items: center; justify-content: center;
+        }
+        .enemy-header.has-image .enemy-image-container { display: flex; }
+
+        .enemy-image {
+            width: 100%; height: 100%;
+            border: 3px solid var(--accent-ui);
+            border-radius: 50%;
+            overflow: hidden;
+            background: #fff;
+            position: relative;
+        }
+        .enemy-image.square { border-radius: 12px; }
+        .enemy-image.no-border { border: none; background: transparent; } /* 无边框模式 */
+        
+        .enemy-image-inner { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 动机与经历优化：长文本换行 */
+        .meta-row {
+            padding-left: 24px;
+            display: flex;
+            flex-wrap: wrap; /* 允许换行 */
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            gap: 10px; /* 行间距 */
+        }
+        .meta-col { 
+            flex: 1 1 200px; /* 最小宽度200px，允许伸缩 */
+            padding-right: 10px; 
+            min-width: 0; /* 防止flex子项被撑大 */
+        }
+        .meta-col:last-child { 
+            border-left: 1px solid #eee; padding-left: 10px; 
+        }
+        /* 当 wrap 发生时，取消边框，因为变成上下排列了 */
+        @media (max-width: 400px) { /* 模拟卡片内窄空间 */
+             .meta-col:last-child { border-left: none; padding-left: 0; border-top: 1px solid #eee; padding-top: 10px; }
+        }
+
+        /* 数据栏 */
+        .stats-grid {
+            padding-left: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
+            background: rgba(0,0,0,0.02); padding: 8px 8px 8px 24px; border-radius: 8px; margin-bottom: 15px; font-family: 'Oswald', sans-serif;
+        }
+        .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .stat-label { font-size: 12px; color: #666; text-transform: uppercase; font-weight: bold; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #222; }
+
+        .attack-row {
+            grid-column: 1 / -1; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 5px; padding-top: 5px; display: flex; justify-content: space-around; align-items: center; font-size: 16px;
+        }
+
+        /* 特性列表 */
+        .traits-section { padding-left: 24px; }
+        .section-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: bold; border-bottom: 2px solid #eee; margin-bottom: 8px; color: var(--text-muted); }
+        .trait-item-card { margin-bottom: 8px; font-size: 15px; }
+        .trait-name-card { font-weight: 700; color: #000; }
+        .trait-flavor-card { display: block; font-style: italic; color: #666; font-size: 13px; margin-top: 2px; }
+
+        /* 特殊特性框 */
+        #card-special-traits {
+            margin-top: 10px; padding-left: 24px; border-top: 2px dashed var(--accent-ui); padding-top: 10px; background: #fffdf5;
+        }
+        .special-trait-card {
+            border: 1px solid #e0e0e0; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.8); margin-bottom: 8px; font-size: 14px;
+        }
+        .st-header { font-weight: bold; color: var(--accent-ui); display: block; margin-bottom: 4px; }
+
+        /* Markdown 高亮 */
+        .markdown-content mark { background: rgba(138, 28, 28, 0.2); color: inherit; padding: 0 2px; border-radius: 2px; }
+        /* 关键：确保 Markdown 内容也支持换行 */
+        .markdown-content { white-space: pre-wrap; word-break: break-word; }
+
+        .hidden { display: none !important; }
+        
+        /* 弹窗样式 */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;}
+        .close-modal { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #999; }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .main-container { grid-template-columns: 1fr; }
+            .preview-panel { position: static; margin-top: 20px; }
+            .card-wrapper { padding: 20px; }
+        }
+        @media (max-width: 600px) {
+            .enemy-card { width: 100%; }
+            .modal-content { grid-template-columns: 1fr; overflow-y: auto; max-height: 90vh; }
+        }
+
+        /* 辅助类 */
+        .toggle-switch {
+            display: flex; align-items: center; cursor: pointer; background: #eee; border-radius: 20px; padding: 4px; width: fit-content; transition: 0.3s;
+        }
+        .toggle-switch.active { background: var(--primary-ui); color: white; }
+        .toggle-option { padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; }
+        .toggle-switch.active .toggle-option.on { background: white; color: var(--primary-ui); }
+        .toggle-switch:not(.active) .toggle-option.off { background: white; color: #333; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--primary-ui); cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #ddd; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <h1>🗡️ 匕首之心 · 敌人卡片生成器</h1>
+        <p>V2.0 | 20251216开源网页 | Rink_CX制作</p>
+    </div>
+
+    <div class="main-container">
+        
+        <!-- 左侧：配置面板 -->
+        <div class="config-panel">
+            
+            <!-- 折叠项 1: 全局设置 -->
+            <div class="accordion-item active">
+                <div class="accordion-header" onclick="toggleAccordion(this)">⚙️ 模式与全局设置</div>
+                <div class="accordion-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>卡片模式</label>
+                            <div class="toggle-switch" id="npcModeToggleWrapper" onclick="toggleNPCMode()">
+                                <input type="checkbox" id="npcModeToggle" onchange="updateCard()" style="display:none;">
+                                <span class="toggle-option off">常规敌人</span>
+                                <span class="toggle-option on">NPC模式</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>主题色 (装饰条)</label>
+                            <div class="color-group">
+                                <input type="color" id="decoratorColorPicker" value="#8a1c1c" oninput="syncColorInput('decoratorColorPicker', 'decoratorColor'); updateCard()">
+                                <input type="text" id="decoratorColor" value="#8a1c1c" oninput="syncColorInput('decoratorColor', 'decoratorColorPicker'); updateCard()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Markdown 高亮样式 (==文字==)</label>
+                        <div class="form-row">
+                            <div class="color-group">
+                                <span>背景:</span>
+                                <input type="color" id="highlightBgColorPicker" value="#852020" oninput="syncColorInput('highlightBgColorPicker', 'highlightBgColor'); updateCard()">
+                            </div>
+                            <div class="color-group">
+                                <span>文字:</span>
+                                <input type="color" id="highlightTextColorPicker" value="#FFFFFF" oninput="syncColorInput('highlightTextColorPicker', 'highlightTextColor'); updateCard()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 折叠项 2: 基本信息 -->
+            <div class="accordion-item active">
+                <div class="accordion-header" onclick="toggleAccordion(this)">📝 基本信息</div>
+                <div class="accordion-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">名称</label>
+                            <input type="text" id="name" placeholder="例如：锯齿刀强盗" oninput="updateCard()">
+                        </div>
+                        <div class="form-group">
+                            <label for="rank">位阶</label>
+                            <select id="rank" onchange="updateCard()">
+                                <option value="1">位阶 1</option>
+                                <option value="2">位阶 2</option>
+                                <option value="3">位阶 3</option>
+                                <option value="4">位阶 4</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">类型</label>
+                            <select id="type" onchange="updateCard()">
+                                <option value="标准">标准</option>
+                                <option value="斗士">斗士</option>
+                                <option value="集群">集群</option>
+                                <option value="头目">头目</option>
+                                <option value="杂兵">杂兵</option>
+                                <option value="远程">远程</option>
+                                <option value="潜伏">潜伏</option>
+                                <option value="社交">社交</option>
+                                <option value="独狼">独狼</option>
+                                <option value="辅助">辅助</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulty">难度</label>
+                            <input type="number" id="difficulty" value="12" oninput="updateCard()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">外观/举止描述 (支持回车换行)</label>
+                        <textarea id="description" placeholder="支持 Markdown 语法，按回车可换行" oninput="updateCard()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="motivation">动机与战术 (长文本自动换行)</label>
+                        <textarea id="motivation" style="min-height: 60px;" placeholder="例如：逃跑、获利..." oninput="updateCard()"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>经历</label>
+                        <div id="experiences" class="dynamic-list"></div>
+                        <button type="button" class="add-btn" onclick="addExperience()">+ 添加经历</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 折叠项 3: 数值与战斗 -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">⚔️ 数值与战斗</div>
+                <div class="accordion-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="threshold">伤害阈值 (重度/严重)</label>
+                            <input type="text" id="threshold" value="8/14" oninput="updateCard()">
+                        </div>
+                        <div class="form-group">
+                            <label for="attackBonus">攻击调整值</label>
+                            <input type="number" id="attackBonus" value="1" oninput="updateCard()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="health">生命</label>
+                            <input type="number" id="health" value="5" min="1" oninput="updateCard()">
+                        </div>
+                        <div class="form-group">
+                            <label for="stress">压力</label>
+                            <input type="number" id="stress" value="3" min="0" oninput="updateCard()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="healthDisplay">生命/压力样式</label>
+                        <select id="healthDisplay" onchange="updateCard()">
+                            <option value="number">纯数字</option>
+                            <option value="dots">仅圆点</option>
+                            <option value="both">数字 + 圆点</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="border-top: 1px dashed #ddd; padding-top: 15px; margin-top: 15px;">
+                        <label>主要武器</label>
+                        <div class="form-row">
+                            <input type="text" id="weaponName" placeholder="名称 (匕首)" oninput="updateCard()">
+                            <input type="text" id="weaponRange" placeholder="范围 (近战)" oninput="updateCard()">
+                        </div>
+                        <div class="form-row">
+                            <input type="text" id="damageDice" placeholder="伤害骰 (1d8+1)" oninput="updateCard()">
+                            <input type="text" id="damageType" placeholder="类型 (物理)" oninput="updateCard()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 折叠项 4: 立绘设置 (核心修改) -->
+            <div class="accordion-item active">
+                <div class="accordion-header" onclick="toggleAccordion(this)">🖼️ 立绘设置</div>
+                <div class="accordion-content">
+                    <div class="form-group">
+                        <label>上传图片 (上传后自动打开编辑器)</label>
+                        <input type="file" id="imageUpload" accept="image/*" style="border: 1px dashed #ccc; padding: 20px;">
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button type="button" class="btn-accent" id="editImage" style="display:none;" onclick="openImageEditor()">✏️ 编辑立绘</button>
+                            <button type="button" class="btn-outline" id="removeImage" onclick="removeImage()">🗑️ 移除图片</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="imageControlGroup" style="display:none; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                        <div class="form-row">
+                            <div>
+                                <label>框宽度 (<span id="imgWVal">150</span>px)</label>
+                                <input type="range" id="enemyImageWidth" min="80" max="300" value="150" oninput="updateCard()">
+                            </div>
+                            <div>
+                                <label>框高度 (<span id="imgHVal">150</span>px)</label>
+                                <input type="range" id="enemyImageHeight" min="80" max="300" value="150" oninput="updateCard()">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="display:flex; align-items:center; cursor:pointer;">
+                                <input type="checkbox" id="hideBorderToggle" onchange="updateCard()" style="width:auto; margin-right:8px;">
+                                隐去立绘边框
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 折叠项 5: 特性 -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">✨ 特性与特殊能力</div>
+                <div class="accordion-content">
+                    <div class="form-group">
+                        <label id="traitsLabel">常规特性</label>
+                        <div id="traits" class="dynamic-list"></div>
+                        <button type="button" class="add-btn" onclick="addTrait()">+ 添加特性</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>特殊特性 (可选)</label>
+                        <div id="special-traits" class="dynamic-list"></div>
+                        <button type="button" class="add-btn" onclick="addSpecialTrait()">+ 添加特殊特性</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部操作按钮 -->
+            <div class="btn-group">
+                <button type="button" class="btn-accent" onclick="exportToPNG()">📸 导出图片</button>
+                <button type="button" class="btn-outline" onclick="exportToJSON()">💾 导出 JSON</button>
+                <button type="button" class="btn-outline" onclick="importFromJSON()">📂 导入 JSON</button>
+                <button type="button" class="btn-outline" style="margin-left: auto; color: #e53e3e; border-color: #e53e3e;" onclick="resetForm()">🗑️ 重置</button>
+            </div>
+        </div>
+
+        <!-- 右侧：预览面板 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3>效果预览</h3>
+                <button type="button" onclick="updateCard()" style="font-size: 0.8rem; padding: 5px 10px;">↻ 刷新</button>
+            </div>
+            
+            <div class="card-wrapper">
+                <!-- 核心卡片 DOM -->
+                <div id="card-preview" class="enemy-card">
+                    <div class="enemy-decorator-bar" id="card-decorator-bar"></div>
+                    
+                    <!-- 头部区域 -->
+                    <div class="enemy-header" id="enemy-header">
+                        <div class="enemy-text-info">
+                            <div class="enemy-name" id="card-name">敌人名称</div>
+                            
+                            <div class="enemy-rank-row"> 
+                                <span id="card-rank">位阶1 标准</span>
+                                <span class="npc-badge" id="npc-difficulty-badge">难度 12</span>
+                            </div>
+                            
+                            <div class="enemy-description markdown-content" id="card-description">描述文案...</div>
+                        </div>
+                        
+                        <div class="enemy-image-container" id="enemy-image-container">
+                            <div id="card-image" class="enemy-image">
+                                <img id="card-image-inner" class="enemy-image-inner" src="about:blank" alt="Enemy">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 信息行: 动机 & 经历 -->
+                    <div class="meta-row" id="motivation-experience-row">
+                        <div class="meta-col">
+                            <strong>动机/战术:</strong> <span id="card-motivation-text" class="markdown-content">...</span>
+                        </div>
+                        <div class="meta-col">
+                            <strong>经历:</strong> <span id="card-experiences-default" class="markdown-content">无</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 数值统计 -->
+                    <div class="stats-container stats-grid">
+                        <div class="stat-box" id="stats-difficulty">
+                            <div class="stat-label">难度</div>
+                            <div class="stat-value" id="card-difficulty">12</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">阈值</div>
+                            <div class="stat-value" id="card-threshold">8/14</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">生命</div>
+                            <div class="stat-value" id="card-health">5</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">压力</div>
+                            <div class="stat-value" id="card-stress">3</div>
+                        </div>
+
+                        <!-- 攻击行 -->
+                        <div class="attack-row" id="stats-attack-row">
+                            <div><strong>攻击:</strong> <span id="card-attack-bonus">+1</span></div>
+                            <div id="card-weapon-name-range">匕首: 近战</div>
+                            <div id="card-damage-dice-type">1d8+1 物理</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 特性列表 -->
+                    <div class="traits-section">
+                        <div class="section-title" id="trait-header">特性</div> 
+                        <div id="card-traits"></div>
+                    </div>
+                    
+                    <!-- 特殊特性 -->
+                    <div id="card-special-traits" style="display: none;">
+                         <div id="special-traits-container"></div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #999; font-size: 0.8rem; margin-top: 10px;">Tips: 上传图片后会自动弹出位置调整窗口</p>
+        </div>
+    </div>
+
+    <!-- 图片编辑模态框 -->
+    <div id="imageEditModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeImageEditor()">&times;</span>
+            <div class="edit-controls">
+                <h3>调整立绘</h3>
+                <div class="form-group">
+                    <label>缩放 <span id="scaleValue">100%</span></label>
+                    <input type="range" id="scaleSlider" min="50" max="400" value="100" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>旋转 <span id="rotateValue">0°</span></label>
+                    <input type="range" id="rotateSlider" min="-180" max="180" value="0" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>水平位置 X</label>
+                    <input type="range" id="positionXSlider" min="0" max="100" value="50" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>垂直位置 Y</label>
+                    <input type="range" id="positionYSlider" min="0" max="100" value="50" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>形状</label>
+                    <div class="btn-group" style="padding: 0; background: none; border: none; position: static;">
+                        <button type="button" class="btn-outline" onclick="updateImageStyle('circle'); updatePreview();">圆形</button>
+                        <button type="button" class="btn-outline" onclick="updateImageStyle('square'); updatePreview();">方角</button>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-accent" id="applyEdit" style="width: 100%;">应用并关闭</button>
+                </div>
+            </div>
+            <div class="edit-preview" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <div id="previewFrame" style="width: 200px; height: 200px; overflow: hidden; border: 2px dashed #999; border-radius: 50%;">
+                    <img id="previewImageInner" style="width: 100%; height: 100%; object-fit: cover;" src="">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 工具与辅助函数 ---
+        
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+
+        function syncColorInput(sourceId, targetId) {
+            const source = document.getElementById(sourceId);
+            const target = document.getElementById(targetId);
+            target.value = source.value.toUpperCase();
+        }
+
+        // Markdown 简易解析 (支持换行符转BR)
+        function parseMarkdown(text) {
+            if (!text) return '';
+            let html = text;
+            // 替换换行符为 <br>
+            html = html.replace(/\n/g, '<br>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+            html = html.replace(/==(.*?)==/g, '<mark>$1</mark>');
+            return html;
+        }
+
+        // --- 2. 核心逻辑 ---
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化
+            addExperience('盗贼+2');
+            addTrait('如履平地', '被动：锯齿刀盗贼攀爬起来和奔跑一样轻松。');
+            addTrait('居高临下', '被动：当锯齿刀盗贼从一个目标上方进行普通攻击并成功时，其造成 1d10+1 的物理伤害而非普通伤害。');
+            
+            document.getElementById('weaponName').value = '匕首';
+            document.getElementById('weaponRange').value = '近战';
+            document.getElementById('damageDice').value = '1d8+1';
+            document.getElementById('damageType').value = '物理';
+            
+            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+            document.getElementById('applyEdit').addEventListener('click', applyImageEdit);
+            
+            updateCard();
+        });
+
+        function updateCard() {
+            const isNPCMode = document.getElementById('npcModeToggle').checked;
+            
+            // 样式处理
+            const cardPreview = document.getElementById('card-preview');
+            const enemyHeader = document.getElementById('enemy-header');
+            const decoratorBar = document.getElementById('card-decorator-bar');
+            const wrapper = document.getElementById('npcModeToggleWrapper');
+            const statsContainer = document.querySelector('.stats-container');
+            const specialTraits = document.getElementById('card-special-traits');
+            
+            const accentColor = document.getElementById('decoratorColor').value;
+            decoratorBar.style.backgroundColor = accentColor;
+            enemyHeader.style.borderBottomColor = isNPCMode ? 'transparent' : accentColor;
+            
+            const hlBg = document.getElementById('highlightBgColorPicker').value;
+            const hlTxt = document.getElementById('highlightTextColorPicker').value;
+            const styleTag = document.getElementById('dynamic-highlight') || document.createElement('style');
+            styleTag.id = 'dynamic-highlight';
+            styleTag.innerHTML = `.markdown-content mark { background-color: ${hlBg}; color: ${hlTxt}; }`;
+            document.head.appendChild(styleTag);
+
+            if (isNPCMode) {
+                wrapper.classList.add('active');
+                enemyHeader.classList.add('npc-mode');
+                document.getElementById('trait-header').textContent = '可互动事项';
+                statsContainer.classList.add('hidden');
+                specialTraits.classList.add('hidden');
+                document.getElementById('npc-difficulty-badge').style.display = 'inline-block';
+            } else {
+                wrapper.classList.remove('active');
+                enemyHeader.classList.remove('npc-mode');
+                document.getElementById('trait-header').textContent = '特性';
+                statsContainer.classList.remove('hidden');
+                specialTraits.classList.remove('hidden');
+                document.getElementById('npc-difficulty-badge').style.display = 'none';
+            }
+
+            // 文本填充
+            document.getElementById('card-name').textContent = document.getElementById('name').value || '未命名';
+            document.getElementById('card-rank').textContent = `位阶${document.getElementById('rank').value} ${document.getElementById('type').value}`;
+            document.getElementById('card-description').innerHTML = parseMarkdown(document.getElementById('description').value);
+            document.getElementById('card-motivation-text').innerHTML = parseMarkdown(document.getElementById('motivation').value);
+            
+            // 数值填充
+            document.getElementById('card-difficulty').textContent = document.getElementById('difficulty').value;
+            document.getElementById('npc-difficulty-badge').textContent = `难度 ${document.getElementById('difficulty').value}`;
+            document.getElementById('card-threshold').textContent = document.getElementById('threshold').value;
+            document.getElementById('card-attack-bonus').textContent = (document.getElementById('attackBonus').value >= 0 ? '+' : '') + document.getElementById('attackBonus').value;
+
+            // 武器
+            const wName = document.getElementById('weaponName').value;
+            const wRange = document.getElementById('weaponRange').value;
+            document.getElementById('card-weapon-name-range').innerHTML = wName ? `<strong>${wName}:</strong> ${wRange}` : wRange;
+            document.getElementById('card-damage-dice-type').textContent = `${document.getElementById('damageDice').value} ${document.getElementById('damageType').value}`;
+
+            // 生命/压力
+            const hp = parseInt(document.getElementById('health').value);
+            const stress = parseInt(document.getElementById('stress').value);
+            const mode = document.getElementById('healthDisplay').value;
+            const dots = (n) => '○'.repeat(n);
+            document.getElementById('card-health').textContent = mode === 'number' ? hp : (mode === 'dots' ? dots(hp) : `${hp} ${dots(hp)}`);
+            document.getElementById('card-stress').textContent = mode === 'number' ? stress : (mode === 'dots' ? dots(stress) : `${stress} ${dots(stress)}`);
+
+            // 经历
+            const expInputs = document.querySelectorAll('.experience-input');
+            const exps = Array.from(expInputs).map(i => i.value).filter(v => v);
+            document.getElementById('card-experiences-default').innerHTML = exps.length ? exps.map(e => parseMarkdown(e)).join('，') : '无';
+
+            // 立绘尺寸与边框
+            const w = document.getElementById('enemyImageWidth').value;
+            const h = document.getElementById('enemyImageHeight').value;
+            const hideBorder = document.getElementById('hideBorderToggle').checked;
+            
+            document.getElementById('imgWVal').innerText = w;
+            document.getElementById('imgHVal').innerText = h;
+            
+            const imgContainer = document.getElementById('enemy-image-container');
+            const imgFrame = document.getElementById('card-image');
+            imgContainer.style.width = w + 'px';
+            imgContainer.style.height = h + 'px';
+            
+            if (hideBorder) imgFrame.classList.add('no-border');
+            else imgFrame.classList.remove('no-border');
+
+            // 列表渲染
+            renderTraits();
+            renderSpecialTraits();
+        }
+
+        function toggleNPCMode() {
+            const chk = document.getElementById('npcModeToggle');
+            chk.checked = !chk.checked;
+            updateCard();
+        }
+
+        // --- 3. 动态列表渲染 ---
+
+        function addExperience(val = '') {
+            const div = document.createElement('div');
+            div.className = 'form-row'; div.style.marginBottom = '5px';
+            div.innerHTML = `
+                <input type="text" class="experience-input" value="${val}" placeholder="例如：盗贼+2" oninput="updateCard()">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove(); updateCard();" style="width: auto;">×</button>
+            `;
+            document.getElementById('experiences').appendChild(div);
+            updateCard();
+        }
+
+        function addTrait(name='', desc='', flavor='') {
+            const div = document.createElement('div');
+            div.className = 'trait-input-group';
+            div.style.border = '1px solid #eee'; div.style.padding = '10px'; div.style.marginBottom = '10px'; div.style.borderRadius = '6px';
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <input type="text" class="trait-name-input" value="${name}" placeholder="特性名称" oninput="updateCard()" style="width:70%; font-weight:bold;">
+                    <button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove(); updateCard();">删除</button>
+                </div>
+                <textarea class="trait-desc-input" placeholder="效果描述" oninput="updateCard()" style="min-height:50px; margin-bottom:5px;">${desc}</textarea>
+                <input type="text" class="trait-flavor-input" value="${flavor}" placeholder="风味文字 (可选)" oninput="updateCard()" style="font-style:italic; font-size:0.9em; color:#666;">
+            `;
+            document.getElementById('traits').appendChild(div);
+            updateCard();
+        }
+
+        function renderTraits() {
+            const container = document.getElementById('card-traits');
+            container.innerHTML = '';
+            document.querySelectorAll('#traits .trait-input-group').forEach(item => {
+                const name = item.querySelector('.trait-name-input').value;
+                const desc = item.querySelector('.trait-desc-input').value;
+                const flavor = item.querySelector('.trait-flavor-input').value;
+                if(name || desc) {
+                    const div = document.createElement('div');
+                    div.className = 'trait-item-card';
+                    div.innerHTML = `<span class="trait-name-card">${name}</span> <span class="markdown-content">${parseMarkdown(desc)}</span>${flavor ? `<span class="trait-flavor-card markdown-content">${parseMarkdown(flavor)}</span>` : ''}`;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function addSpecialTrait(name='', trigger='', choice='', effect='') {
+            const div = document.createElement('div');
+            div.className = 'st-input-group';
+            div.style.border = '1px dashed var(--accent-ui)'; div.style.padding = '10px'; div.style.marginBottom = '10px'; div.style.borderRadius = '6px';
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <input type="text" class="st-name" value="${name}" placeholder="特殊特性名称" oninput="updateCard()" style="width:70%; font-weight:bold; color:var(--accent-ui);">
+                    <button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove(); updateCard();">删除</button>
+                </div>
+                <input type="text" class="st-trigger" value="${trigger}" placeholder="触发条件" oninput="updateCard()" style="margin-bottom:5px;">
+                <input type="text" class="st-choice" value="${choice}" placeholder="选择项" oninput="updateCard()" style="margin-bottom:5px;">
+                <textarea class="st-effect" placeholder="效果" oninput="updateCard()" style="min-height:50px;">${effect}</textarea>
+            `;
+            document.getElementById('special-traits').appendChild(div);
+        }
+
+        function renderSpecialTraits() {
+            const container = document.getElementById('special-traits-container');
+            container.innerHTML = '';
+            let hasContent = false;
+            document.querySelectorAll('#special-traits .st-input-group').forEach(item => {
+                const name = item.querySelector('.st-name').value;
+                const trigger = item.querySelector('.st-trigger').value;
+                const choice = item.querySelector('.st-choice').value;
+                const effect = item.querySelector('.st-effect').value;
+                if(name || effect) {
+                    hasContent = true;
+                    const div = document.createElement('div');
+                    div.className = 'special-trait-card';
+                    let html = `<span class="st-header">${name}</span>`;
+                    if(trigger) html += `<div><strong>触发:</strong> ${parseMarkdown(trigger)}</div>`;
+                    if(choice) html += `<div><strong>选择:</strong> ${parseMarkdown(choice)}</div>`;
+                    if(effect) html += `<div class="markdown-content">${parseMarkdown(effect)}</div>`;
+                    div.innerHTML = html;
+                    container.appendChild(div);
+                }
+            });
+            const isNPC = document.getElementById('npcModeToggle').checked;
+            document.getElementById('card-special-traits').style.display = (hasContent && !isNPC) ? 'block' : 'none';
+        }
+
+        // --- 4. 图片处理逻辑 (升级版) ---
+        
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const src = event.target.result;
+                    document.getElementById('card-image-inner').src = src;
+                    document.getElementById('previewImageInner').src = src;
+                    
+                    document.getElementById('enemy-header').classList.add('has-image');
+                    document.getElementById('editImage').style.display = 'inline-block';
+                    document.getElementById('imageControlGroup').style.display = 'block';
+                    
+                    // 重置变换状态
+                    document.getElementById('card-image-inner').style.transform = '';
+                    
+                    // 自动打开编辑器
+                    openImageEditor();
+                    
+                    updateCard();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('card-image-inner').src = "about:blank";
+            document.getElementById('enemy-header').classList.remove('has-image');
+            document.getElementById('editImage').style.display = 'none';
+            document.getElementById('imageControlGroup').style.display = 'none';
+            document.getElementById('imageUpload').value = '';
+            updateCard();
+        }
+
+        function openImageEditor() {
+            document.getElementById('imageEditModal').style.display = 'flex';
+            
+            // 从当前DOM读取现有变换状态，以便再次编辑
+            const currentImg = document.getElementById('card-image-inner');
+            const transform = currentImg.style.transform;
+            
+            // 解析 scale
+            const scaleMatch = transform.match(/scale\(([\d.]+)\)/);
+            const scale = scaleMatch ? parseFloat(scaleMatch[1]) * 100 : 100;
+            
+            // 解析 rotate
+            const rotMatch = transform.match(/rotate\(([\d.-]+)deg\)/);
+            const rot = rotMatch ? parseFloat(rotMatch[1]) : 0;
+            
+            // 解析 translate
+            let x = 50, y = 50;
+            const transMatch = transform.match(/translate\(([\d.-]+)%,\s*([\d.-]+)%\)/);
+            if (transMatch) {
+                x = 50 - parseFloat(transMatch[1]);
+                y = 50 - parseFloat(transMatch[2]);
+            }
+
+            document.getElementById('scaleSlider').value = scale;
+            document.getElementById('rotateSlider').value = rot;
+            document.getElementById('positionXSlider').value = x;
+            document.getElementById('positionYSlider').value = y;
+            
+            // 同步模态框预览图
+            document.getElementById('previewImageInner').src = currentImg.src;
+            updatePreview();
+        }
+        
+        function closeImageEditor() { document.getElementById('imageEditModal').style.display = 'none'; }
+        
+        function updatePreview() {
+            const scale = document.getElementById('scaleSlider').value;
+            const rot = document.getElementById('rotateSlider').value;
+            const x = document.getElementById('positionXSlider').value;
+            const y = document.getElementById('positionYSlider').value;
+            
+            document.getElementById('scaleValue').innerText = scale + '%';
+            document.getElementById('rotateValue').innerText = rot + '°';
+            
+            // 计算逻辑：translate 的百分比是相对于元素自身的
+            // 我们用 50-x 来实现从中心点偏移
+            const transform = `scale(${scale/100}) rotate(${rot}deg) translate(${50-x}%, ${50-y}%)`;
+            
+            document.getElementById('previewImageInner').style.transform = transform;
+            document.getElementById('previewImageInner').dataset.transform = transform;
+        }
+
+        function updateImageStyle(style) {
+            const frame = document.getElementById('previewFrame');
+            if(style === 'square') frame.style.borderRadius = '12px';
+            else frame.style.borderRadius = '50%';
+            frame.dataset.style = style;
+        }
+
+        function applyImageEdit() {
+            const transform = document.getElementById('previewImageInner').dataset.transform || '';
+            const style = document.getElementById('previewFrame').dataset.style || 'circle';
+            
+            const realImg = document.getElementById('card-image-inner');
+            const realFrame = document.getElementById('card-image');
+            
+            realImg.style.transform = transform;
+            // 保留 no-border 类
+            const hasNoBorder = realFrame.classList.contains('no-border');
+            realFrame.className = 'enemy-image ' + (style === 'square' ? 'square' : '') + (hasNoBorder ? ' no-border' : '');
+            
+            // 保存样式状态到DOM，方便下次读取
+            realFrame.dataset.shape = style;
+            
+            closeImageEditor();
+        }
+
+        // --- 5. 导出/导入逻辑 ---
+
+        function exportToPNG() {
+            const element = document.getElementById('card-preview');
+            html2canvas(element, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('name').value || 'enemy'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function exportToJSON() {
+            // 获取图片变换数据
+            const img = document.getElementById('card-image-inner');
+            const frame = document.getElementById('card-image');
+            
+            const data = {
+                name: document.getElementById('name').value,
+                rank: document.getElementById('rank').value,
+                type: document.getElementById('type').value,
+                description: document.getElementById('description').value,
+                motivation: document.getElementById('motivation').value,
+                difficulty: document.getElementById('difficulty').value,
+                threshold: document.getElementById('threshold').value,
+                health: document.getElementById('health').value,
+                stress: document.getElementById('stress').value,
+                attackBonus: document.getElementById('attackBonus').value,
+                weaponName: document.getElementById('weaponName').value,
+                weaponRange: document.getElementById('weaponRange').value,
+                damageDice: document.getElementById('damageDice').value,
+                damageType: document.getElementById('damageType').value,
+                
+                // 颜色与模式
+                decoratorColor: document.getElementById('decoratorColor').value,
+                highlightBgColor: document.getElementById('highlightBgColorPicker').value,
+                highlightTextColor: document.getElementById('highlightTextColorPicker').value,
+                isNPC: document.getElementById('npcModeToggle').checked,
+                
+                // 图片详细数据
+                imageSrc: img.src,
+                imageTransform: img.style.transform,
+                imageSettings: {
+                    width: document.getElementById('enemyImageWidth').value,
+                    height: document.getElementById('enemyImageHeight').value,
+                    shape: frame.dataset.shape || (frame.classList.contains('square') ? 'square' : 'circle'),
+                    hideBorder: document.getElementById('hideBorderToggle').checked
+                },
+
+                experiences: Array.from(document.querySelectorAll('.experience-input')).map(i => i.value),
+                traits: Array.from(document.querySelectorAll('.trait-input-group')).map(t => ({
+                    name: t.querySelector('.trait-name-input').value,
+                    desc: t.querySelector('.trait-desc-input').value,
+                    flavor: t.querySelector('.trait-flavor-input').value
+                })),
+                specialTraits: Array.from(document.querySelectorAll('.st-input-group')).map(t => ({
+                    name: t.querySelector('.st-name').value,
+                    trigger: t.querySelector('.st-trigger').value,
+                    choice: t.querySelector('.st-choice').value,
+                    effect: t.querySelector('.st-effect').value
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (data.name || 'enemy') + '.json';
+            a.click();
+        }
+
+        function importFromJSON() {
+            const input = document.createElement('input');
+            input.type = 'file'; accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const data = JSON.parse(event.target.result);
+                    
+                    // 基础字段回填
+                    document.getElementById('name').value = data.name || '';
+                    document.getElementById('rank').value = data.rank || '1';
+                    document.getElementById('type').value = data.type || '标准';
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('motivation').value = data.motivation || '';
+                    document.getElementById('difficulty').value = data.difficulty || 12;
+                    document.getElementById('threshold').value = data.threshold || '8/14';
+                    document.getElementById('health').value = data.health || 5;
+                    document.getElementById('stress').value = data.stress || 3;
+                    document.getElementById('attackBonus').value = data.attackBonus || 1;
+                    document.getElementById('weaponName').value = data.weaponName || '';
+                    document.getElementById('weaponRange').value = data.weaponRange || '';
+                    document.getElementById('damageDice').value = data.damageDice || '';
+                    document.getElementById('damageType').value = data.damageType || '';
+                    
+                    // 颜色回填
+                    if(data.decoratorColor) {
+                        document.getElementById('decoratorColor').value = data.decoratorColor;
+                        document.getElementById('decoratorColorPicker').value = data.decoratorColor;
+                    }
+                    if(data.highlightBgColor) document.getElementById('highlightBgColorPicker').value = data.highlightBgColor;
+                    if(data.highlightTextColor) document.getElementById('highlightTextColorPicker').value = data.highlightTextColor;
+                    
+                    document.getElementById('npcModeToggle').checked = !!data.isNPC;
+                    
+                    // 图片回填
+                    if(data.imageSrc && data.imageSrc !== 'about:blank') {
+                        const img = document.getElementById('card-image-inner');
+                        const frame = document.getElementById('card-image');
+                        
+                        img.src = data.imageSrc;
+                        document.getElementById('enemy-header').classList.add('has-image');
+                        document.getElementById('editImage').style.display = 'inline-block';
+                        document.getElementById('imageControlGroup').style.display = 'block';
+                        
+                        // 恢复变换
+                        if(data.imageTransform) img.style.transform = data.imageTransform;
+                        
+                        // 恢复设置
+                        if(data.imageSettings) {
+                            document.getElementById('enemyImageWidth').value = data.imageSettings.width;
+                            document.getElementById('enemyImageHeight').value = data.imageSettings.height;
+                            document.getElementById('hideBorderToggle').checked = data.imageSettings.hideBorder;
+                            
+                            frame.className = 'enemy-image ' + (data.imageSettings.shape === 'square' ? 'square' : '');
+                            frame.dataset.shape = data.imageSettings.shape;
+                        }
+                    }
+
+                    // 列表回填
+                    document.getElementById('experiences').innerHTML = '';
+                    if(data.experiences) data.experiences.forEach(ex => addExperience(ex));
+                    
+                    document.getElementById('traits').innerHTML = '';
+                    if(data.traits) data.traits.forEach(t => addTrait(t.name, t.desc, t.flavor));
+                    
+                    document.getElementById('special-traits').innerHTML = '';
+                    if(data.specialTraits) data.specialTraits.forEach(t => addSpecialTrait(t.name, t.trigger, t.choice, t.effect));
+                    
+                    updateCard();
+                    alert('导入成功！');
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function resetForm() {
+            if(confirm('确定要清空所有内容吗？')) location.reload();
+        }
+    </script>
+</body>
+</html>
