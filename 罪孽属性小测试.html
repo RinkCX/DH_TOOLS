@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月之都市：理智与创伤倾向性评估</title>
+    <style>
+        :root {
+            --bg-dark: #13131a;
+            --bg-card: #1c1c26;
+            --bg-hover: #2a2a35;
+            --text-main: #e2e2e9;
+            --text-muted: #8b8b99;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --warning-bg: #2d1b19;
+            --warning-text: #f59e0b;
+            --border-color: #2f2f3e;
+            --sin-color: #e11d48;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+    
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+    
+        .question-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+    
+        .question-card:hover {
+            border-color: #4a4a5e;
+        }
+    
+        .question-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+    
+        .option-label {
+            display: block;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+    
+        .option-label:hover {
+            background-color: var(--bg-hover);
+            border-color: #5a5a72;
+        }
+    
+        .option-label input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--primary-color);
+        }
+    
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+    
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+    
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+    
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+    
+        .btn-secondary:hover {
+            background-color: var(--bg-hover);
+        }
+    
+        /* Warning Box */
+        .warning-box {
+            background-color: var(--warning-bg);
+            border-left: 4px solid var(--warning-text);
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            display: none;
+        }
+    
+        .warning-title {
+            color: var(--warning-text);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    
+        .warning-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #d1d5db;
+            font-size: 14px;
+        }
+    
+        /* Results Section */
+        #results-container {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+    
+        .result-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+    
+        .badge {
+            display: inline-block;
+            background-color: rgba(225, 29, 72, 0.15);
+            color: #fb7185;
+            border: 1px solid #e11d48;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+    
+        .badge-secondary {
+            background-color: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border: 1px solid #6366f1;
+        }
+    
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+    
+        .score-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+        }
+    
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+    
+        .score-name {
+            font-weight: bold;
+            color: #818cf8;
+        }
+    
+        .score-value {
+            font-size: 14px;
+            color: white;
+        }
+    
+        .score-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>直面心道：理智与创伤倾向性评估</h1>
+    <div class="subtitle">回答以下 10 个问题，揭示深藏于你潜意识中的执念与「罪孽属性」。</div>
+
+    <div id="quiz-container">
+        </div>
+    
+    <div class="warning-box" id="warning-box">
+        <div class="warning-title">⚠️ 你只回答了 <span id="answered-count">0/10</span> 个问题</div>
+        <div style="margin-bottom: 10px; font-size: 14px;">建议完成所有问题以获得更准确的结果。是否强制提交查看当前结果？</div>
+        <ul class="warning-list" id="warning-list"></ul>
+    </div>
+    
+    <div class="actions">
+        <button class="btn btn-primary" id="submit-btn" onclick="handleSubmit()">提交并计算结果</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()">重置所有答案</button>
+    </div>
+    
+    <div id="results-container">
+        <div class="result-header">测试结果</div>
+        
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">最契合你的罪孽根源：</div>
+            <div class="badge" id="primary-badge">主属性</div>
+            <div id="primary-desc" style="font-size: 14px; color: #e2e2e9;">描述文本...</div>
+        </div>
+    
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">你潜意识中的次级执念：</div>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #e2e2e9;">
+                <li style="margin-bottom: 8px;"><span class="badge badge-secondary" id="secondary-badge" style="margin-bottom: 0; padding: 2px 8px;">次属性</span> — <span id="secondary-desc">描述文本...</span></li>
+            </ul>
+        </div>
+    
+        <div class="result-header" style="margin-top: 40px;">完整潜意识得分分布</div>
+        <div class="score-grid" id="score-grid">
+            </div>
+    </div>
+</div>
+
+<script>
+    // 题目数据
+    const questions = [
+        { title: "想在这座都市活下去，你认为最不可或缺的是什么？", options: [
+            { text: "碾碎一切阻碍、将威胁彻底抹除的绝对武力。", sin: "暴怒" },
+            { text: "永不满足的渴望，把眼前有价值的东西全部吞吃入腹。", sin: "暴食" },
+            { text: "凌驾于庸人之上的自我准则与绝对的高傲。", sin: "傲慢" },
+            { text: "能够随时抛弃一切、对周遭事物彻底冷漠的能力。", sin: "怠惰" }
+        ]},
+        { title: "当你珍视的事物被这座都市毫无理由地夺走时，你的第一反应是？", options: [
+            { text: "为什么别人可以安然拥有，而我却失去？我要去夺走他们的。", sin: "嫉妒" },
+            { text: "沉溺在无尽的悲恸中，只想让周围的世界也感受这份痛苦。", sin: "忧郁" },
+            { text: "找到罪魁祸首，将他们连同整条街区一起烧成灰烬。", sin: "暴怒" },
+            { text: "把它变成我的一部分（记忆、物品或血肉），这样就永远不会分开了。", sin: "色欲" }
+        ]},
+        { title: "在你看来，都市人口中所谓的“希望”究竟是什么？", options: [
+            { text: "弱者用来欺骗自己、逃避现实的麻醉剂。", sin: "怠惰" },
+            { text: "一种可以被咀嚼、吞咽，用来填补内心空洞的美味食粮。", sin: "暴食" },
+            { text: "只有我才配拥有，其他人触碰只会将其玷污的闪耀之物。", sin: "傲慢" },
+            { text: "一碰就会碎裂，最终只会留下无尽空虚的幻影。", sin: "忧郁" }
+        ]},
+        { title: "凝视深渊时，如果你感觉到自己的理智濒临扭曲，是什么在推你最后一把？", options: [
+            { text: "对那个毁灭了我生活的存在，刻骨铭心的仇恨。", sin: "暴怒" },
+            { text: "某种病态的迷恋，我想要看清并拥抱深渊里那令人愉悦的东西。", sin: "色欲" },
+            { text: "凭什么我要承受这些，而那些高墙之民却能安然入睡？我不甘心。", sin: "嫉妒" },
+            { text: "我不在乎了。如果彻底堕落能换来安宁，那就沉下去吧。", sin: "怠惰" }
+        ]},
+        { title: "在这片没有道德的土地上，你的后背应该留给谁？", options: [
+            { text: "任何人都不配。我是一座孤岛，我只相信我自己。", sin: "傲慢" },
+            { text: "那些身上带有我施加的印记，被我绝对掌控且痴迷于我的人。", sin: "色欲" },
+            { text: "那些和我一样，除了彼此和满身伤痕外一无所有的可怜虫。", sin: "忧郁" },
+            { text: "无所谓，只要他们还有利用价值，随时可以当做我的挡箭牌或备用口粮。", sin: "暴食" }
+        ]},
+        { title: "真正的“强大”表现为什么？", options: [
+            { text: "能够将自己承受的苦难，化作漆黑的浪潮席卷整个世界。", sin: "忧郁" },
+            { text: "看着别人在泥潭中挣扎，而我独自站在一尘不染的高塔上。", sin: "傲慢" },
+            { text: "看到任何更好的东西，都能立刻将其复刻、据为己有。", sin: "嫉妒" },
+            { text: "把眼前不顺眼的一切条条框框，彻底砸个稀巴烂。", sin: "暴怒" }
+        ]},
+        { title: "仰望那些高高在上、垄断一切的“世界之翼”，你内心深处最真实的想法是？", options: [
+            { text: "迟早有一天，我要把他们全部拽下来，自己坐上那个位置。", sin: "嫉妒" },
+            { text: "他们的存在毫无意义，我连抬头看一眼都觉得浪费精力。", sin: "怠惰" },
+            { text: "这是一个巨大的捕食场，而我终将一口口吃掉他们所有人。", sin: "暴食" },
+            { text: "那些虚伪的规矩令人作呕，只有我内心的法则才是唯一的真理。", sin: "傲慢" }
+        ]},
+        { title: "后巷的雨夜，一个濒死的人抓住你的裤脚向你求救，你会：", options: [
+            { text: "蹲下来，温柔地欣赏他眼中生命流逝的绝望瞬间。", sin: "色欲" },
+            { text: "一脚踢开。他死不死，和我有什么关系？", sin: "怠惰" },
+            { text: "剥夺掉他最后的一点价值（无论财物、情报还是器官）。", sin: "暴食" },
+            { text: "听着他的哀嚎，回想起自己曾经的惨状，任由阴郁将两人一同淹没。", sin: "忧郁" }
+        ]},
+        { title: "如果你的灵魂能化作一把武器（E.G.O），你希望它有什么特性？", options: [
+            { text: "能够完美模仿并超越敌人所有招式的利刃。", sin: "嫉妒" },
+            { text: "散发着令人沉沦的迷香，让敌人在快乐中被我肢解的锁链。", sin: "色欲" },
+            { text: "拒绝一切外来干涉，形成一道绝对隔绝他人的叹息之墙。", sin: "傲慢" },
+            { text: "每一击都带着爆裂的高温，燃烧我的愤怒直到将目标燃尽的重锤。", sin: "暴怒" }
+        ]},
+        { title: "支撑你在这座疯狂都市里走到今天，你最终的目的是什么？", options: [
+            { text: "夺走一切，把所有高高在上、拥有比我更多的人全部踩在脚下。", sin: "嫉妒" },
+            { text: "将这该死的一切彻底燃尽，哪怕我也在其中化为灰烬。", sin: "暴怒" },
+            { text: "寻找一种能永远填满内心那份饥饿与空虚的东西。", sin: "暴食" },
+            { text: "没什么目的，我只是一具顺流而下的行尸走肉。", sin: "怠惰" }
+        ]}
+    ];
+
+    // 罪孽数据
+    const sinData = {
+        "暴怒": { desc: "纯粹的毁灭与破坏欲。你倾向于用最直接的暴力撕碎一切阻碍，哪怕代价是波及无辜。" },
+        "色欲": { desc: "病态的迷恋与支配欲。你渴望从他人的沉沦与痛苦中榨取愉悦，并将其绑在自己身边。" },
+        "暴食": { desc: "永远无法填满的空虚。你将世间万物（包括情感与记忆）视为填补自己的食粮。" },
+        "怠惰": { desc: "对世界的彻底冷漠与停滞。你拒绝改变，拒绝承担，任由自己化作一块冰冷的死石。" },
+        "嫉妒": { desc: "对他人拥有的极度不甘。你不允许任何人比你优越，你渴望夺走并复刻他们的一切。" },
+        "傲慢": { desc: "极致的自我中心。你认为自己是唯一的法则，拒绝任何人的同情、施舍与干涉。" },
+        "忧郁": { desc: "沉溺于悲伤的黑色浪潮。你将痛苦视为唯一的真实，并试图将所有人拖入水中。" }
+    };
+    
+    // 渲染题目
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = '';
+        
+        questions.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `q-card-${index}`;
+            
+            let html = `<div class="question-title">${index + 1}. ${q.title}</div>`;
+            
+            q.options.forEach((opt, oIndex) => {
+                html += `
+                    <label class="option-label">
+                        <input type="radio" name="q${index}" value="${opt.sin}">
+                        ${opt.text}
+                    </label>
+                `;
+            });
+            
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+    
+    // 检查是否回答完毕
+    function checkAnswers() {
+        let answeredCount = 0;
+        let unanswered = [];
+        
+        questions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if (selected) {
+                answeredCount++;
+                document.getElementById(`q-card-${index}`).style.borderColor = 'var(--border-color)';
+            } else {
+                unanswered.push(index + 1);
+                document.getElementById(`q-card-${index}`).style.borderColor = 'var(--warning-text)';
+            }
+        });
+    
+        return { answeredCount, unanswered };
+    }
+    
+    // 处理提交
+    let forceSubmit = false;
+    function handleSubmit() {
+        const { answeredCount, unanswered } = checkAnswers();
+        const warningBox = document.getElementById('warning-box');
+        const warningList = document.getElementById('warning-list');
+        const submitBtn = document.getElementById('submit-btn');
+    
+        if (unanswered.length > 0 && !forceSubmit) {
+            // 显示警告
+            warningBox.style.display = 'block';
+            document.getElementById('answered-count').innerText = `${answeredCount}/${questions.length}`;
+            
+            warningList.innerHTML = '';
+            unanswered.forEach(num => {
+                const li = document.createElement('li');
+                li.innerText = `第 ${num} 题：未作答`;
+                warningList.appendChild(li);
+            });
+            
+            submitBtn.innerText = "强制提交并查看当前结果";
+            submitBtn.style.backgroundColor = 'var(--warning-text)';
+            forceSubmit = true;
+            
+            // 滚动到警告框
+            warningBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+    
+        // 计算得分
+        calculateScores();
+    }
+    
+    // 计算与展示结果
+    function calculateScores() {
+        const scores = { "暴怒":0, "色欲":0, "暴食":0, "怠惰":0, "嫉妒":0, "傲慢":0, "忧郁":0 };
+        
+        questions.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if (selected) {
+                scores[selected.value]++;
+            }
+        });
+    
+        // 排序
+        const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        const primarySin = sortedScores[0][0];
+        const secondarySin = sortedScores[1][0];
+    
+        // 隐藏题目，显示结果
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('warning-box').style.display = 'none';
+        document.querySelector('.actions').style.display = 'none';
+        
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.style.display = 'block';
+        window.scrollTo(0, 0);
+    
+        // 填充主要/次要结果
+        document.getElementById('primary-badge').innerText = `【${primarySin}】`;
+        document.getElementById('primary-desc').innerText = sinData[primarySin].desc;
+        
+        document.getElementById('secondary-badge').innerText = `【${secondarySin}】`;
+        document.getElementById('secondary-desc').innerText = sinData[secondarySin].desc;
+    
+        // 渲染完整网格
+        const gridContainer = document.getElementById('score-grid');
+        gridContainer.innerHTML = '';
+        sortedScores.forEach(([sin, score]) => {
+            gridContainer.innerHTML += `
+                <div class="score-item">
+                    <div class="score-header">
+                        <span class="score-name">${sin}</span>
+                        <span class="score-value">${score} 分</span>
+                    </div>
+                    <div class="score-desc">${sinData[sin].desc}</div>
+                </div>
+            `;
+        });
+    }
+    
+    // 重置
+    function resetQuiz() {
+        const radios = document.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => radio.checked = false);
+        
+        const cards = document.querySelectorAll('.question-card');
+        cards.forEach(card => card.style.borderColor = 'var(--border-color)');
+        
+        document.getElementById('warning-box').style.display = 'none';
+        document.getElementById('results-container').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        document.querySelector('.actions').style.display = 'flex';
+        
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = "提交并计算结果";
+        submitBtn.style.backgroundColor = 'var(--primary-color)';
+        forceSubmit = false;
+        
+        window.scrollTo(0, 0);
+    }
+    
+    // 初始化
+    window.onload = renderQuiz;
+</script>
+
+</body>
+</html>
