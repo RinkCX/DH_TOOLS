@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自我具象卡 | Limbus Terminal V1.7</title>
+    <!-- 引入 html2canvas 用于图像拓印 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0806;
+            --metal-dark: #1f1610;
+            --metal-border: #4a3620;
+            --metal-highlight: #755530;
+            
+            --ego-color: #e2b446;
+            --ego-rgb: 226, 180, 70;
+            
+            --theme-color: var(--ego-color);
+            --theme-rgb: var(--ego-rgb);
+            --theme-glow: rgba(var(--theme-rgb), 0.5);
+    
+            --text-main: #e8e2d9;
+            --text-muted: #8c7d70;
+        }
+    
+        body {
+            margin: 0; padding: 0; min-height: 100vh;
+            background-color: var(--bg-deep); color: var(--text-main);
+            font-family: 'Noto Sans SC', sans-serif;
+            display: flex; justify-content: center; align-items: flex-start;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, transparent 80%),
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+    
+        h1, h2, h3, .serif { font-family: 'Noto Serif SC', serif; margin: 0; }
+    
+        .app-layout {
+            display: flex; flex-direction: row; gap: 60px;
+            max-width: 1400px; width: 100%; padding: 60px 40px;
+            align-items: flex-start; justify-content: center;
+        }
+    
+        /* ==========================================
+           左侧边栏控制台
+           ========================================================= */
+        .sidebar {
+            width: 320px; flex-shrink: 0;
+            background: linear-gradient(180deg, #18120d 0%, #080604 100%);
+            border: 3px solid var(--metal-border); border-radius: 6px;
+            padding: 30px 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; gap: 15px;
+            position: sticky; top: 60px;
+        }
+        
+        .sidebar::before, .sidebar::after {
+            content: ''; position: absolute; width: 8px; height: 8px;
+            background: #111; border: 1px solid #444; border-radius: 50%;
+        }
+        .sidebar::before { top: 10px; left: 10px; box-shadow: 280px 0 0 #111; }
+        .sidebar::after { bottom: 10px; left: 10px; box-shadow: 280px 0 0 #111; }
+    
+        .nav-btn {
+            background: linear-gradient(180deg, #110d0a 0%, #050302 100%);
+            border: 2px solid var(--metal-dark); color: var(--text-muted);
+            padding: 16px 22px; font-size: 18px; font-family: 'Noto Serif SC', serif; font-weight: 900;
+            cursor: pointer; transition: all 0.2s; text-align: left;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+        
+        .nav-btn::before {
+            content: ''; display: block; width: 10px; height: 10px;
+            background: var(--metal-border); border-radius: 2px; transition: all 0.2s;
+        }
+        
+        .nav-btn:hover { border-color: var(--metal-highlight); color: #fff; }
+        .nav-btn.active-mode {
+            background: linear-gradient(90deg, rgba(var(--theme-rgb), 0.15) 0%, transparent 100%);
+            border-color: var(--theme-color); color: var(--theme-color);
+            text-shadow: 0 0 8px var(--theme-glow); box-shadow: inset 0 0 15px rgba(var(--theme-rgb), 0.1);
+        }
+        .nav-btn.active-mode::before { background: var(--theme-color); box-shadow: 0 0 10px var(--theme-color); }
+        
+        .divider { height: 2px; background: #221810; margin: 5px 0; border-bottom: 1px solid #000; }
+    
+        /* ==========================================
+           紧凑型卡牌容器 (动态高度，自适应填充)
+           ========================================================= */
+        .card-container { width: 500px; flex-shrink: 0; perspective: 2500px; }
+    
+        .dossier-card {
+            display: grid; grid-template-columns: 1fr;
+            width: 100%; position: relative;
+            transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+        }
+        .dossier-card.is-flipped { transform: rotateY(180deg); }
+    
+        /* 面板全局间距紧凑化 */
+        .card-face {
+            grid-column: 1; grid-row: 1;
+            width: 100%; min-height: 800px;
+            backface-visibility: hidden;
+            background: linear-gradient(135deg, #110b08 0%, #050302 100%);
+            border: 2px solid #000;
+            box-shadow: 
+                0 0 0 2px var(--metal-border), 0 0 0 6px #000,
+                0 20px 50px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.9);
+            clip-path: polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px);
+            padding: 30px 25px; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 15px; /* 间距缩小 */
+        }
+    
+        .card-front { border-top: 8px solid var(--ego-color); z-index: 2; }
+        .card-back { transform: rotateY(180deg); border-top: 8px solid var(--theme-color); z-index: 1;}
+    
+        .card-title {
+            font-size: 30px; color: var(--theme-color);
+            text-shadow: 0 0 10px var(--theme-glow), 2px 2px 0 #000;
+            border-bottom: 2px solid var(--metal-border);
+            padding-bottom: 8px; margin-bottom: 5px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            flex-shrink: 0;
+        }
+        .card-subtitle { font-size: 13px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; letter-spacing: 2px; }
+    
+        .form-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .form-group.flex-fill { flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .form-group label {
+            font-size: 14px; color: var(--text-muted); font-weight: 700;
+            display: flex; align-items: center; gap: 8px; margin-bottom: 0px;
+        }
+        .form-group label::before { content: ''; display: inline-block; width: 4px; height: 12px; background: var(--theme-color); }
+    
+        input[type="text"], textarea, select {
+            width: 100%; background: rgba(0,0,0,0.5);
+            border: 1px solid var(--metal-dark); border-bottom: 2px solid #332515;
+            color: var(--text-main); font-family: 'Noto Sans SC', sans-serif;
+            padding: 12px; font-size: 14px; box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        textarea { resize: none; width: 100%; height: 100%; min-height: 60px; line-height: 1.6; flex-grow: 1; }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-bottom-color: var(--theme-color); background: rgba(0,0,0,0.8);
+        }
+    
+        /* 战术模块对齐修正 */
+        .module-group { display: flex; flex-direction: column; gap: 8px; }
+        .module-label { display: block; cursor: pointer; }
+        .module-box {
+            border: 1px solid var(--metal-dark); background: rgba(10,10,10,0.8);
+            padding: 10px 15px;
+            min-height: 74px; /* 强制统一最小高度 */
+            display: flex; flex-direction: column; justify-content: center; /* 内容纵向居中 */
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.2s;
+        }
+        .module-title { font-size: 16px; font-family: 'Noto Serif SC', serif; font-weight: 900; margin-bottom: 4px; color: var(--text-main); transition: color 0.2s;}
+        .module-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    
+        input[type="radio"]:checked + .module-box,
+        input[type="checkbox"]:checked + .module-box {
+            border-color: var(--theme-color);
+            background: linear-gradient(180deg, rgba(var(--theme-rgb), 0.15) 0%, #000 100%);
+            box-shadow: inset 0 0 15px rgba(var(--theme-rgb), 0.2);
+        }
+        input[type="radio"]:checked + .module-box .module-title,
+        input[type="checkbox"]:checked + .module-box .module-title {
+            color: var(--theme-color); text-shadow: 0 0 8px var(--theme-glow);
+        }
+        input[type="radio"], input[type="checkbox"] { display: none; }
+    
+        /* 罪孽机制读取面板紧凑化 */
+        .sin-readout {
+            background: repeating-linear-gradient(-45deg, rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 10px, rgba(10,10,10,0.4) 10px, rgba(10,10,10,0.4) 20px);
+            border: 1px solid var(--metal-border); border-left: 4px solid var(--theme-color);
+            padding: 15px; font-size: 14px;
+        }
+        .sin-readout strong { display: block; font-size: 15px; color: var(--theme-color); font-family: 'Noto Serif SC', serif; margin-top: 8px; margin-bottom: 4px;}
+        .sin-readout strong:first-child { margin-top: 0; }
+        .sin-readout span { color: #d0c8b8; line-height: 1.5; display: block;}
+        
+        .custom-editor { display: none; flex-direction: column; gap: 8px; margin-top: 5px; padding: 12px; background: rgba(0,0,0,0.6); border: 1px dashed var(--theme-color); }
+        .custom-editor .inline-row { display: flex; gap: 10px; align-items: center; font-size: 13px; color:var(--text-muted);}
+    
+        /* 导出时的遮罩 */
+        #loading-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 99999;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--theme-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-family: 'Noto Serif SC'; font-size: 20px; color: #fff; letter-spacing: 2px;">影像拓印中，修正文本间距...</div>
+    </div>
+    
+    <div class="app-layout">
+        
+        <aside class="sidebar">
+            <button class="nav-btn active-mode" id="btn-ego" onclick="switchMode(false)">神备</button>
+            <button class="nav-btn" id="btn-dist" onclick="switchMode(true)">扭曲</button>
+            
+            <div class="divider"></div>
+            
+            <button class="nav-btn" onclick="exportPNG()">抽出影像 (PNG)</button>
+            
+            <div class="divider"></div>
+            
+            <button class="nav-btn" onclick="exportJSON()">封存卷宗 (JSON)</button>
+            <button class="nav-btn" onclick="document.getElementById('file-load-json').click()">读取卷宗 (JSON)</button>
+            <input type="file" id="file-load-json" accept=".json" onchange="loadJSON(event)">
+        </aside>
+    
+        <main class="card-container">
+            <div class="dossier-card" id="main-card">
+                
+                <!-- ====== 正面：神备 ====== -->
+                <div class="card-face card-front" id="face-ego">
+                    <h2 class="card-title">
+                        <span id="title-ego">绽放E.G.O::未知</span>
+                        <span class="card-subtitle">AWAKENING</span>
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label>【神备名称】</label>
+                        <input type="text" id="input-ego-name" placeholder="例如：狐雨 / 代行">
+                    </div>
+    
+                    <div class="form-group flex-fill">
+                        <label>【灵感外观】</label>
+                        <textarea id="input-manifestation" placeholder="描述你的 E.G.O 具现化后的形态...&#10;叙事特权：你允许在此状态下采取超越常理的物理动作。"></textarea>
+                    </div>
+    
+                    <div class="form-group">
+                        <label>【神备权能】</label>
+                        <div class="module-group">
+                            <label class="module-label">
+                                <input type="radio" name="ego-power" value="hope">
+                                <div class="module-box">
+                                    <div class="module-title">希望具现</div>
+                                    <div class="module-desc">所有动作掷骰与反应掷骰默认具有优势。</div>
+                                </div>
+                            </label>
+                            <label class="module-label">
+                                <input type="radio" name="ego-power" value="bulwark">
+                                <div class="module-box">
+                                    <div class="module-title">心灵壁垒</div>
+                                    <div class="module-desc">免疫任何常规的负面状态（如束缚、脆弱等）。</div>
+                                </div>
+                            </label>
+                            <label class="module-label">
+                                <input type="radio" name="ego-power" value="blade">
+                                <div class="module-box">
+                                    <div class="module-title">心刃共鸣</div>
+                                    <div class="module-desc">熟练值+1，或伤害掷骰直接取最大值。</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- ====== 反面：扭曲 ====== -->
+                <div class="card-face card-back" id="face-dist">
+                    <h2 class="card-title">
+                        <span>扭曲</span>
+                        <span class="card-subtitle">DISTORTION</span>
+                    </h2>
+    
+                    <div class="form-group">
+                        <label>【罪孽转变卡】</label>
+                        <select id="sin-select">
+                            <option value="wrath">暴怒 | WRATH (狼人)</option>
+                            <option value="lust">色欲 | LUST</option>
+                            <option value="gluttony">暴食 | GLUTTONY</option>
+                            <option value="sloth">怠惰 | SLOTH</option>
+                            <option value="envy">嫉妒 | ENVY</option>
+                            <option value="pride">傲慢 | PRIDE</option>
+                            <option value="melancholy">忧郁 | MELANCHOLY</option>
+                            <option value="custom">✦ 自定义罪孽</option>
+                        </select>
+                    </div>
+    
+                    <div class="sin-readout" id="sin-panel-content"></div>
+                    
+                    <div class="custom-editor" id="custom-editor">
+                        <div class="inline-row">
+                            <span>罪孽基调色:</span>
+                            <input type="color" id="custom-color-picker" value="#990000">
+                        </div>
+                        <input type="text" id="custom-buff-name" placeholder="正面增益名称...">
+                        <textarea id="custom-buff-desc" style="height:40px;" placeholder="增益机制描述..."></textarea>
+                        <input type="text" id="custom-debuff-name" placeholder="负面代价名称...">
+                        <textarea id="custom-debuff-desc" style="height:40px;" placeholder="负面机制描述..."></textarea>
+                    </div>
+    
+                    <div class="form-group flex-fill" style="margin-top: 5px;">
+                        <label>【异化外观】</label>
+                        <textarea id="input-dist-appearance" placeholder="描述你失去人形后的可怖模样，以神备为基底扭曲..."></textarea>
+                    </div>
+    
+                    <div class="form-group">
+                        <label>【绝对执念】</label>
+                        <!-- 修正：改为textarea支持多行换行 -->
+                        <textarea id="input-obsession" placeholder="行为逻辑被接管，必须服务于此目标，无法撤退，拒绝怜悯..." style="min-height: 50px; flex-grow: 0;"></textarea>
+                    </div>
+    
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label>【唤醒机制】</label>
+                        <div class="module-group">
+                            <label class="module-label">
+                                <input type="checkbox" class="awaken-cb" id="cb-rescue">
+                                <div class="module-box">
+                                    <div class="module-title">联结救赎</div>
+                                    <div class="module-desc">队友顶着负面效果靠近，花费1希望点用羁绊唤醒你。</div>
+                                </div>
+                            </label>
+                            <label class="module-label">
+                                <input type="checkbox" class="awaken-cb" id="cb-collapse">
+                                <div class="module-box">
+                                    <div class="module-title">力竭倒下</div>
+                                    <div class="module-desc">当标记最后一个生命点时，肉体崩溃退出状态。</div>
+                                </div>
+                            </label>
+                            <label class="module-label">
+                                <input type="checkbox" class="awaken-cb" id="cb-fullfill">
+                                <div class="module-box">
+                                    <div class="module-title">执念已满</div>
+                                    <div class="module-desc">绝对执念完成时欲望化作空虚，陷入呆滞退出状态。</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const SINS = {
+            wrath: { color: '#b71c1c', buff: '愤怒烙印', buffDesc: '将⼀个D10骰加到所有攻击与伤害掷骰中。', debuff: '恨意难熄', debuffDesc: '掷出恐惧结果时引发无差别破坏，GM获1恐惧点，近距离队友标记1压力。无法协商。' },
+            lust: { color: '#e65100', buff: '欲望游行', buffDesc: '进行风度掷骰贯穿目标心智。成功时，目标陷入【迷醉】，向你移动且攻击具劣势。', debuff: '渴求之壑', debuffDesc: '无法通过休整清除压力点。只能通过让生物【迷醉】，或对【迷醉】目标造成伤害时清除。' },
+            gluttony: { color: '#558b2f', buff: '饕餮盛宴', buffDesc: '一场游戏一次，吞噬记忆或羁绊作为食粮，恢复等同于你位阶的生命点。', debuff: '唯此珍馐', debuffDesc: '使用该能力后，直到下次休息前，你无法再通过其他任何方式恢复生命点。' },
+            sloth: { color: '#fbc02d', buff: '无求旁贷', buffDesc: '保持静止时，任何对你发起的物理攻击，其伤害结果直接降低一个严重等级。', debuff: '无责无望', debuffDesc: '近距离队友无法花费希望点获优势。队友强行移动你需先标记1压力。' },
+            envy: { color: '#6a1b9a', buff: '吾亦可有', buffDesc: '当目标在近距离使用特性时，标记2压力点模仿该能力（效果与GM协定）。', debuff: '假以珍惜', debuffDesc: '直到下次休息前，该目标使用此被模仿的能力时，其掷骰具有劣势。' },
+            pride: { color: '#1565c0', buff: '向死成志', buffDesc: '动作掷骰时可永久划去一个希望槽，视为恐惧成功，本场景恐惧骰改为D20。', debuff: '孤绝污血', debuffDesc: '无法被队友治疗或获优势。来自他人的优势转劣势。邻近有盟友标记1压力。' },
+            melancholy: { color: '#00838f', buff: '袭来浪潮', buffDesc: '施法汲取近距离目标希望，化为等量忧郁指示物。花费1指示物可将希望骰替换为D20。', debuff: '沉沦回响', debuffDesc: '在非战斗状态下获得的所有希望点，都会转为标记等量的压力点。' }
+        };
+    
+        const root = document.documentElement;
+        let isDistorted = false;
+    
+        document.getElementById('input-ego-name').addEventListener('input', (e) => {
+            document.getElementById('title-ego').textContent = `绽放E.G.O::${e.target.value.trim() || '未知'}`;
+        });
+    
+        function hexToRgbStr(hex) {
+            let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+            return `${r}, ${g}, ${b}`;
+        }
+    
+        function updateSinTheme() {
+            const val = document.getElementById('sin-select').value;
+            let hexColor;
+            
+            if (val === 'custom') {
+                document.getElementById('custom-editor').style.display = 'flex';
+                hexColor = document.getElementById('custom-color-picker').value;
+                document.getElementById('sin-panel-content').innerHTML = `
+                    <strong>【${document.getElementById('custom-buff-name').value || '未知恩赐'}】</strong><span>${document.getElementById('custom-buff-desc').value || '...'}</span>
+                    <strong>【${document.getElementById('custom-debuff-name').value || '未知代价'}】</strong><span>${document.getElementById('custom-debuff-desc').value || '...'}</span>`;
+            } else {
+                document.getElementById('custom-editor').style.display = 'none';
+                const s = SINS[val]; hexColor = s.color;
+                document.getElementById('sin-panel-content').innerHTML = `<strong>【${s.buff}】</strong><span>${s.buffDesc}</span><strong>【${s.debuff}】</strong><span>${s.debuffDesc}</span>`;
+            }
+    
+            if (isDistorted) {
+                root.style.setProperty('--theme-color', hexColor);
+                root.style.setProperty('--theme-rgb', hexToRgbStr(hexColor));
+            }
+        }
+    
+        document.getElementById('sin-select').addEventListener('change', updateSinTheme);
+        document.getElementById('custom-color-picker').addEventListener('input', updateSinTheme);
+        document.querySelectorAll('.custom-editor input, .custom-editor textarea').forEach(el => el.addEventListener('input', updateSinTheme));
+        updateSinTheme();
+    
+        function switchMode(toDistortion) {
+            if (isDistorted === toDistortion) return;
+            isDistorted = toDistortion;
+            
+            document.getElementById('main-card').classList.toggle('is-flipped', toDistortion);
+            document.getElementById('btn-dist').classList.toggle('active-mode', toDistortion);
+            document.getElementById('btn-ego').classList.toggle('active-mode', !toDistortion);
+    
+            if (toDistortion) updateSinTheme();
+            else {
+                root.style.setProperty('--theme-color', 'var(--ego-color)');
+                root.style.setProperty('--theme-rgb', 'var(--ego-rgb)');
+            }
+        }
+    
+        document.querySelectorAll('.awaken-cb').forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (document.querySelectorAll('.awaken-cb:checked').length > 2) this.checked = false;
+            });
+        });
+    
+        // ==========================================
+        // 真·无损截图核心 (DOM 元素替换法解决截断BUG)
+        // ==========================================
+        async function exportPNG() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
+            await new Promise(r => setTimeout(r, 100)); 
+    
+            const mainCard = document.getElementById('main-card');
+            const realHeight = mainCard.getBoundingClientRect().height;
+    
+            // 创建一个纯净的绝对容器
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'absolute';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.width = '500px'; 
+            wrapper.style.height = `${realHeight}px`;
+            wrapper.style.zIndex = '9999';
+            wrapper.style.backgroundColor = '#0b0806';
+            document.body.appendChild(wrapper);
+    
+            // 克隆当前需要的面
+            const activeFaceId = isDistorted ? 'face-dist' : 'face-ego';
+            const originalFace = document.getElementById(activeFaceId);
+            const cloneFace = originalFace.cloneNode(true);
+    
+            // 剥离3D属性，使其可以在 wrapper 内平面渲染
+            cloneFace.style.transform = 'none';
+            cloneFace.style.backfaceVisibility = 'visible';
+            cloneFace.style.position = 'absolute';
+            cloneFace.style.top = '0';
+            cloneFace.style.left = '0';
+            cloneFace.style.height = `${realHeight}px`;
+            
+            wrapper.appendChild(cloneFace);
+    
+            // 核心：将 clone 中的 textarea / input 替换为原生支持完美换行的 div
+            const origInputs = originalFace.querySelectorAll('input, textarea, select');
+            const cloneInputs = cloneFace.querySelectorAll('input, textarea, select');
+            
+            origInputs.forEach((orig, i) => {
+                const cln = cloneInputs[i];
+                const themeColor = root.style.getPropertyValue('--theme-color') || (isDistorted ? '#b71c1c' : '#e2b446');
+                
+                if (orig.tagName === 'TEXTAREA' || (orig.tagName === 'INPUT' && orig.type === 'text')) {
+                    const div = document.createElement('div');
+                    
+                    // 复制原生样式，并加入 pre-wrap 强制换行
+                    div.style.cssText = `
+                        width: 100%; 
+                        background: rgba(0,0,0,0.8);
+                        border: 1px solid #1f1610; 
+                        border-bottom: 2px solid ${themeColor};
+                        color: ${orig.value ? '#e8e2d9' : '#8c7d70'};
+                        font-family: 'Noto Sans SC', sans-serif;
+                        padding: 12px; 
+                        font-size: 14px; 
+                        box-sizing: border-box;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        line-height: 1.6;
+                        flex-grow: ${orig.classList.contains('flex-fill') || orig.tagName === 'TEXTAREA' ? '1' : '0'};
+                        min-height: ${orig.tagName === 'TEXTAREA' ? '60px' : 'auto'};
+                    `;
+                    div.innerText = orig.value || orig.placeholder;
+                    cln.parentNode.replaceChild(div, cln);
+                } 
+                else if (orig.tagName === 'SELECT') {
+                    const div = document.createElement('div');
+                    div.style.cssText = `
+                        width: 100%; background: rgba(0,0,0,0.8);
+                        border: 1px solid #1f1610; border-bottom: 2px solid ${themeColor};
+                        color: #e8e2d9; font-family: 'Noto Sans SC', sans-serif;
+                        padding: 12px; font-size: 14px; box-sizing: border-box;
+                    `;
+                    div.innerText = orig.options[orig.selectedIndex].text;
+                    cln.parentNode.replaceChild(div, cln);
+                }
+                else if (orig.type === 'checkbox' || orig.type === 'radio') {
+                    if (orig.checked) cln.setAttribute('checked', 'checked');
+                }
+            });
+    
+            try {
+                const canvas = await html2canvas(wrapper, {
+                    scale: 2, 
+                    backgroundColor: '#0b0806',
+                    logging: false
+                });
+    
+                const link = document.createElement('a');
+                const eName = document.getElementById('input-ego-name').value.trim() || '未知';
+                link.download = `[档案] ${eName}_${isDistorted ? '扭曲' : '神备'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch(e) {
+                alert("图像拓印失败：" + e);
+            } finally {
+                document.body.removeChild(wrapper);
+                overlay.style.display = 'none';
+            }
+        }
+    
+        // ==========================================
+        // 卷宗系统 (已剔除 clockState)
+        // ==========================================
+        function exportJSON() {
+            const data = {
+                egoName: document.getElementById('input-ego-name').value,
+                manifestation: document.getElementById('input-manifestation').value,
+                egoPower: document.querySelector('input[name="ego-power"]:checked')?.value || '',
+                sinSelect: document.getElementById('sin-select').value,
+                customColor: document.getElementById('custom-color-picker').value,
+                customBuffName: document.getElementById('custom-buff-name').value,
+                customBuffDesc: document.getElementById('custom-buff-desc').value,
+                customDebuffName: document.getElementById('custom-debuff-name').value,
+                customDebuffDesc: document.getElementById('custom-debuff-desc').value,
+                distAppearance: document.getElementById('input-dist-appearance').value,
+                obsession: document.getElementById('input-obsession').value,
+                rescueChecked: document.getElementById('cb-rescue').checked,
+                collapseChecked: document.getElementById('cb-collapse').checked,
+                fullfillChecked: document.getElementById('cb-fullfill').checked
+            };
+    
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `[卷宗] ${data.egoName || '未知'}.json`;
+            link.click();
+        }
+    
+        function loadJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    document.getElementById('input-ego-name').value = data.egoName || '';
+                    document.getElementById('input-manifestation').value = data.manifestation || '';
+                    if (data.egoPower) {
+                        const r = document.querySelector(`input[name="ego-power"][value="${data.egoPower}"]`);
+                        if(r) r.checked = true;
+                    }
+                    
+                    document.getElementById('sin-select').value = data.sinSelect || 'wrath';
+                    document.getElementById('custom-color-picker').value = data.customColor || '#b71c1c';
+                    document.getElementById('custom-buff-name').value = data.customBuffName || '';
+                    document.getElementById('custom-buff-desc').value = data.customBuffDesc || '';
+                    document.getElementById('custom-debuff-name').value = data.customDebuffName || '';
+                    document.getElementById('custom-debuff-desc').value = data.customDebuffDesc || '';
+                    document.getElementById('input-dist-appearance').value = data.distAppearance || '';
+                    document.getElementById('input-obsession').value = data.obsession || '';
+    
+                    document.getElementById('cb-rescue').checked = !!data.rescueChecked;
+                    document.getElementById('cb-collapse').checked = !!data.collapseChecked;
+                    document.getElementById('cb-fullfill').checked = !!data.fullfillChecked;
+    
+                    document.getElementById('input-ego-name').dispatchEvent(new Event('input'));
+                    updateSinTheme();
+                    document.getElementById('file-load-json').value = ''; 
+    
+                } catch (err) {
+                    alert("卷宗数据污染，无法解析。");
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
