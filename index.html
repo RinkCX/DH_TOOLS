@@ -3,22 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>月之都市：系统终端</title>
+    <title>月之都市：系统终端 | DH_TOOLS</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #13131a; color: #e2e2e9; text-align: center; padding: 50px; }
-        .menu-container { max-width: 500px; margin: 0 auto; background-color: #1c1c26; padding: 30px; border-radius: 8px; border: 1px solid #2f2f3e; }
-        h1 { color: #6366f1; margin-bottom: 30px; }
-        .menu-link { display: block; background-color: #2a2a35; color: white; text-decoration: none; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #4a4a5e; transition: 0.3s; font-weight: bold; }
-        .menu-link:hover { background-color: #4f46e5; border-color: #6366f1; }
+        :root {
+            --bg-dark: #0f0f15;
+            --bg-card: #1c1c26;
+            --text-main: #e2e2e9;
+            --text-muted: #8b8b99;
+            --primary: #e11d48; /* 月亮计划经典血红 */
+            --primary-hover: #be123c;
+            --border: #2f2f3e;
+            --highlight: #6366f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #2a151b 0%, transparent 50%);
+        }
+
+        .terminal {
+            max-width: 700px;
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--text-main);
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+            font-size: 28px;
+        }
+
+        .highlight-text {
+            color: var(--primary);
+        }
+
+        .intro {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 0;
+            padding: 0 20px;
+        }
+
+        .nav-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #232330;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid #3f3f5a;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #2a1b1e;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.15);
+        }
+
+        .icon {
+            margin-right: 20px;
+            font-size: 28px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .text-content {
+            flex: 1;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .nav-btn:hover .title {
+            color: var(--primary);
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #5a5a72;
+        }
     </style>
 </head>
 <body>
-    <div class="menu-container">
-        <h1>月之都市：系统终端</h1>
-        <a href="gm_tool.html" class="menu-link">🗡️ GM 控制台 (遭遇构筑器)</a>
-        <a href="quiz.html" class="menu-link">🩸 玩家终端：罪孽倾向性测试</a>
-        <a href="enemy.html" class="menu-link">💀 敌人图鉴数据库</a>
-        <a href="scene.html" class="menu-link">🏙️ 场景管理器</a>
+    <div class="terminal">
+        <div class="header">
+            <h1><span class="highlight-text">月之都市</span> · 系统终端</h1>
+            <p class="intro">
+                这是一个索引集合。<br>
+                整合了战役管理、遭遇构筑、玩家测试及卡片生成等核心工具。<br>
+            </p>
+        </div>
+        
+        <div class="nav-grid">
+            <a href="【最新】匕首之心整合框架_1222版本.html" class="nav-btn">
+                <span class="icon">💻</span>
+                <div class="text-content">
+                    <span class="title">整合框架</span>
+                    <span class="desc">GM终端：包含跑团日志、遭遇追踪、核心机制与完整说明。</span>
+                </div>
+            </a>
+            
+            <a href="sintest.html" class="nav-btn">
+                <span class="icon">🩸</span>
+                <div class="text-content">
+                    <span class="title">罪孽属性评测</span>
+                    <span class="desc">月之都市：第零场互动问卷，测试并生成角色的专属罪孽属性。</span>
+                </div>
+            </a>
+
+            <a href="E.G.Ocard.html" class="nav-btn">
+                <span class="icon">🎴</span>
+                <div class="text-content">
+                    <span class="title">自我属性卡 (E.G.O Card)</span>
+                    <span class="desc">月之都市：记录“神备”与“扭曲”状态机制的桌面卡片。</span>
+                </div>
+            </a>
+
+            <a href="enemy.html" class="nav-btn">
+                <span class="icon">💀</span>
+                <div class="text-content">
+                    <span class="title">敌人卡片生成器</span>
+                    <span class="desc">GM工具</span>
+                </div>
+            </a>
+
+            <a href="scene.html" class="nav-btn">
+                <span class="icon">🏙️</span>
+                <div class="text-content">
+                    <span class="title">场景卡片生成器</span>
+                    <span class="desc">GM工具</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            System Online // Daggerheart TRPG Tools//Rink_CX
+        </div>
     </div>
 </body>
 </html>
