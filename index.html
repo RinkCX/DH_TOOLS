@@ -3,184 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> DH_TOOLS索引 </title>
+    <title>匕首工坊 · 工具索引</title>
     <style>
-        :root {
-            --bg-dark: #0f0f15;
-            --bg-card: #1c1c26;
-            --text-main: #e2e2e9;
-            --text-muted: #8b8b99;
-            --primary: #e11d48; /* 月亮计划经典血红 */
-            --primary-hover: #be123c;
-            --border: #2f2f3e;
-            --highlight: #6366f1;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+        /* ===== 全局重置 & 基础 ===== */
+        * {
             margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0d0d0d;
+            background: radial-gradient(ellipse at 50% 0%, #1a1210 0%, #0d0d0d 100%);
             min-height: 100vh;
-            background-image: radial-gradient(circle at 50% 0%, #2a151b 0%, transparent 50%);
-        }
-
-        。terminal {
-            max-width: 700px;
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: var(--text-main);
-            margin: 0 0 10px 0;
-            letter-spacing: 2px;
-            font-size: 28px;
-        }
-
-        .highlight-text {
-            color: var(--primary);
-        }
-
-        .intro {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 0;
-            padding: 0 20px;
-        }
-
-        .nav-grid {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #cdc5b7;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        .nav-btn {
-            display: flex;
             align-items: center;
-            padding: 16px 20px;
-            background: #232330;
-            color: var(--text-main);
-            text-decoration: none;
-            border-radius: 6px;
-            border: 1px solid #3f3f5a;
-            transition: all 0.2s ease;
+            justify-content: center;
+            padding: 2rem 1rem;
         }
 
-        .nav-btn:hover {
-            background: #2a1b1e;
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.15);
+        .container {
+            max-width: 880px;
+            width: 100%;
+            background: rgba(16, 14, 12, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid #2a2220;
+            border-radius: 20px;
+            padding: 2.5rem 2rem 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(120, 60, 40, 0.1) inset;
         }
 
-        .icon {
-            margin-right: 20px;
-            font-size: 28px;
-            width: 40px;
+        /* ===== 标题 ===== */
+        .header {
             text-align: center;
+            margin-bottom: 2.8rem;
+            position: relative;
+        }
+        .header h1 {
+            font-weight: 500;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+            color: #d4b8a0;
+            text-transform: uppercase;
+        }
+        .header h1 span {
+            color: #b34a3a;
+            font-weight: 400;
+        }
+        .header .subtitle {
+            font-size: 0.75rem;
+            color: #6a5c52;
+            letter-spacing: 2px;
+            margin-top: 0.3rem;
         }
 
-        .text-content {
+        /* ===== 分区标题 ===== */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+        .section:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #a07060;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.2rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid #8b3a2a;
+            line-height: 1;
+        }
+
+        /* ===== 卡片网格 ===== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background: #1a1614;
+            border: 1px solid #2e2824;
+            border-radius: 14px;
+            padding: 1.2rem 1rem 1rem;
+            text-decoration: none;
+            color: #cdc5b7;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            border-color: #7a4a3a;
+            background: #1f1a17;
+            box-shadow: 0 8px 30px rgba(140, 40, 30, 0.15);
+            transform: translateY(-2px);
+        }
+        .card-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #a07060;
+            line-height: 1;
+        }
+        .card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #e8d9c8;
+            margin-bottom: 0.2rem;
+            letter-spacing: 0.3px;
+        }
+        .card-desc {
+            font-size: 0.78rem;
+            color: #7a6c62;
+            line-height: 1.5;
             flex: 1;
         }
-
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 4px;
-            color: #fff;
+        .card .enter-btn {
+            margin-top: 0.7rem;
+            align-self: flex-end;
+            font-size: 0.7rem;
+            color: #b34a3a;
+            background: transparent;
+            border: 1px solid #3a2a22;
+            padding: 0.2rem 0.7rem;
+            border-radius: 5px;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .card:hover .enter-btn {
+            border-color: #b34a3a;
+            background: rgba(180, 50, 30, 0.1);
         }
 
-        .desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            display: block;
-        }
-
-        .nav-btn:hover .title {
-            color: var(--primary);
-        }
-
+        /* ===== 页脚 ===== */
         .footer {
-            margin-top: 30px;
+            margin-top: 2.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2a2220;
             text-align: center;
-            font-size: 12px;
-            color: #5a5a72;
+            font-size: 0.7rem;
+            color: #4a3e36;
+            letter-spacing: 1px;
+        }
+        .footer a {
+            color: #7a5c4a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer a:hover {
+            color: #b34a3a;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 500px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="terminal">
+    <div class="container">
+        <!-- 标题 -->
         <div class="header">
-            <h1><span class="highlight-text">月之都市</span> · 系统终端</h1>
-            <p class="intro">
-                这是一个索引集合。<br>
-                整合了战役管理、遭遇构筑、玩家测试及卡片生成等核心工具。<br>
-            </p>
-        </div>
-        
-        <div class="nav-grid">
-            <a href="【最新】匕首之心整合框架_1222版本.html" class="nav-btn">
-                <span class="icon">💻</span>
-                <div class="text-content">
-                    <span class="title">整合框架</span>
-                    <span class="desc">GM终端：包含跑团日志、遭遇追踪、核心机制与完整说明。</span>
-                </div>
-            </a>
-            
-            <a href="sintest.html" class="nav-btn">
-                <span class="icon">🩸</span>
-                <div class="text-content">
-                    <span class="title">罪孽属性评测</span>
-                    <span class="desc">月之都市：第零场互动问卷，测试并生成角色的专属罪孽属性。</span>
-                </div>
-            </a>
-
-            <a href="E.G.Ocard.html" class="nav-btn">
-                <span class="icon">🎴</span>
-                <div class="text-content">
-                    <span class="title">自我属性卡 (E.G.O Card)</span>
-                    <span class="desc">月之都市：记录“神备”与“扭曲”状态机制的桌面卡片。</span>
-                </div>
-            </a>
-
-            <a href="enemy.html" class="nav-btn">
-                <span class="icon">💀</span>
-                <div class="text-content">
-                    <span class="title">敌人卡片生成器</span>
-                    <span class="desc">GM工具</span>
-                </div>
-            </a>
-
-            <a href="scene.html" class="nav-btn">
-                <span class="icon">🏙️</span>
-                <div class="text-content">
-                    <span class="title">场景卡片生成器</span>
-                    <span class="desc">GM工具</span>
-                </div>
-            </a>
+            <h1>🗡️ <span>匕之</span>工坊</h1>
+            <div class="subtitle">Rink · 个人工具索引</div>
         </div>
 
+        <!-- 通用 -->
+        <div class="section">
+            <div class="section-title">通用</div>
+            <div class="card-grid">
+                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/enemy.html" target="_blank">
+                    <div class="card-icon">👹</div>
+                    <div class="card-title">敌人卡片制作</div>
+                    <div class="card-desc">设计敌人卡。</div>
+                    <div class="enter-btn">→ 进入</div>
+                </a>
+                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/scene.html" target="_blank">
+                    <div class="card-icon">🏰</div>
+                    <div class="card-title">场景卡片制作</div>
+                    <div class="card-desc">设计场景卡。</div>
+                    <div class="enter-btn">→ 进入</div>
+                </a>
+                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E3%80%90%E6%9C%80%E6%96%B0%E3%80%91%E5%8C%95%E9%A6%96%E4%B9%8B%E5%BF%83%E6%95%B4%E5%90%88%E6%A1%86%E6%9E%B6_1222%E7%89%88%E6%9C%AC.html" target="_blank">
+                    <div class="card-icon">⚔️</div>
+                    <div class="card-title">遭遇构筑器</div>
+                    <div class="card-desc">整合框架 v1222 · 适配敌人/卡片制作器，快速编排战斗。</div>
+                    <div class="enter-btn">→ 进入</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- PBDH -->
+        <div class="section">
+            <div class="section-title">PBDH</div>
+            <div class="card-grid">
+                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9FGM%E5%B7%A5%E5%85%B7%E6%94%B9.html" target="_blank">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-title">《我车何》GM 工具</div>
+                    <div class="card-desc">GM主持面板 · 限速/恐惧/座驾/倒计时全面控制。</div>
+                    <div class="enter-btn">→ 进入</div>
+                </a>
+                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9F%E7%8E%A9%E5%AE%B6%E8%BD%A6%E5%8D%A1%E5%99%A8.html" target="_blank">
+                    <div class="card-icon">📋</div>
+                    <div class="card-title">《我车何》玩家车卡器</div>
+                    <div class="card-desc">创建亡命车手与座驾。</div>
+                    <div class="enter-btn">→ 进入</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
         <div class="footer">
-            System Online // Daggerheart TRPG Tools//Rink_CX
+            <a href="https://github.com/rinkcx/DH_TOOLS" target="_blank">📂 GitHub 仓库</a> · 
+            <span>v1.1</span> · 
+            <span>🗡️ 匕首之心</span>
         </div>
     </div>
 </body>
