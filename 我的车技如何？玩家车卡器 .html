@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOW'S MY DRIVING? - 角色档案</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --paper-color: #f0f0e0;
+            --blood-red: #cc0000;
+            --ink-black: #050505;
+            --dirty-white: #e0e0e0;
+        }
+
+        body {
+            font-family: "Courier New", Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--dirty-white);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill-opacity="0.05"><path d="M0 0h100v100H0z" fill="%23000"/><path d="M10 10h10v10H10zM50 50h10v10H50z" fill="%23fff"/></g></svg>');
+        }
+    
+        .sheet-container {
+            width: 800px;
+            background-color: var(--paper-color);
+            color: var(--ink-black);
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+    
+        /* 模拟做旧污渍效果 */
+        .sheet-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 60%, rgba(165, 42, 42, 0.1) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+    
+        h1 {
+            font-family: Impact, sans-serif;
+            font-size: 3.5rem;
+            color: var(--blood-red);
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+            transform: rotate(-2deg);
+            text-shadow: 2px 2px 0px #000;
+            text-align: center;
+        }
+    
+        .subtitle {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--ink-black);
+            padding-bottom: 10px;
+        }
+    
+        .phone-number {
+            display: block;
+            background: var(--ink-black);
+            color: var(--dirty-white);
+            padding: 5px;
+            transform: rotate(1deg);
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+    
+        .section {
+            margin-bottom: 25px;
+            border: 2px solid var(--ink-black);
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+    
+        .section-title {
+            background: var(--ink-black);
+            color: var(--dirty-white);
+            padding: 2px 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            position: absolute;
+            top: -12px;
+            left: 10px;
+        }
+    
+        .row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+    
+        .col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+    
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+    
+        input, select, textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--ink-black);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1rem;
+            padding: 5px;
+            color: var(--ink-black);
+            width: 100%;
+            outline: none;
+        }
+    
+        input:focus, select:focus, textarea:focus {
+            background: rgba(204, 0, 0, 0.1);
+        }
+    
+        textarea {
+            border: 2px solid var(--ink-black);
+            resize: vertical;
+        }
+    
+        .approach-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 5px;
+        }
+    
+        .approach-val {
+            width: 80px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--blood-red);
+        }
+    
+        .fuel-die-container {
+            text-align: center;
+            border: 3px solid var(--blood-red);
+            padding: 10px;
+            margin-top: 10px;
+        }
+    
+        .fuel-selector {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--blood-red);
+            border: none;
+        }
+    
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+    
+        button {
+            background: var(--blood-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-family: Impact, sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s;
+        }
+    
+        button:hover {
+            transform: scale(1.05);
+            background: #a00;
+        }
+    
+        .help-text {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #666;
+            margin-top: 2px;
+        }
+    
+        /* 打印优化 */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .sheet-container {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+            }
+            .actions {
+                display: none;
+            }
+            input, select, textarea {
+                border-bottom: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sheet-container">
+        <h1>HOW'S MY DRIVING?</h1>
+        <div class="subtitle">
+            <span class="phone-number">CALL 1 (539) 204-4910</span>
+            <p>A ROAD TRIP FROM HELL | 公路惊魂 TRPG</p>
+        </div>
+    
+        <div class="section">
+            <div class="section-title">乘客信息</div>
+            <div class="row">
+                <div class="col">
+                    <label>姓名</label>
+                    <input type="text" id="charName" placeholder="输入角色名...">
+                </div>
+                <div class="col">
+                    <label>原型 </label>
+                    <select id="archetypeSelect" onchange="updateArchetype()">
+                        <option value="">-- 选择原型 --</option>
+                        <option value="muscle">THE MUSCLE (肌肉)</option>
+                        <option value="kid">THE KID (小孩)</option>
+                        <option value="fixer">THE FIXER (修理师)</option>
+                        <option value="loverboy">THE LOVERBOY (情圣)</option>
+                        <option value="mom">THE GROUP MOM (团队之母)</option>
+                        <option value="dude">THE DUDE (哥们)</option>
+                        <option value="virgin">THE VIRGIN (雏儿)</option>
+                        <option value="jacket">THE JACKET (夹克酷哥)</option>
+                        <option value="baddie">THE BADDIE (辣妹)</option>
+                        <option value="geezer">THE GEEZER (老家伙)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>面部选角</label>
+                    <input type="text" id="faceCast" placeholder="选择一位公众人物...">
+                </div>
+                <div class="col">
+                    <label>气质</label>
+                    <input type="text" id="vibes" placeholder="描述角色的整体氛围...">
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col">
+                <div class="section fuel-die-container">
+                    <div class="section-title" style="background:var(--blood-red);">燃料骰（FUEL DIE )</div>
+                    <select id="fuelDie" class="fuel-selector">
+                        <option value="d12">D12</option>
+                        <option value="d10">D10</option>
+                        <option value="d8">D8</option>
+                        <option value="d6">D6</option>
+                        <option value="d4">D4</option>
+                        <option value="empty">OUT OF GAS</option>
+                    </select>
+                    <div class="help-text">代表求生驱动力与资源 </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="section">
+                    <div class="section-title">状态</div>
+                    <label>燃料点</label>
+                    <input type="number" id="fuelPoints" value="0" style="font-size: 1.5rem; font-weight:bold;">
+                    <div class="help-text">用于侥幸逃脱死亡、启用经历、帮助盟友</div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="section">
+            <div class="section-title">能力与缺陷</div>
+            <div class="row">
+                <div class="col">
+                    <label style="color:var(--blood-red);">增益</label>
+                    <textarea id="perkText" rows="3" readonly placeholder="选择原型自动填充..."></textarea>
+                </div>
+                <div class="col">
+                    <label>缺陷</label>
+                    <textarea id="flawText" rows="3" readonly placeholder="选择原型自动填充..."></textarea>
+                </div>
+            </div>
+        </div>
+    
+        <div class="section">
+            <div class="section-title">行事风格</div>
+            <div class="help-text" style="margin-bottom: 10px;">从列表中选择4种风格分配等级 </div>
+            
+            <div class="approach-row">
+                <span class="approach-val">专家+3</span>
+                <select class="approach-select">
+                   </select>
+            </div>
+            <div class="approach-row">
+                <span class="approach-val">擅长+2</span>
+                <select class="approach-select">
+                    </select>
+            </div>
+            <div class="approach-row">
+                <span class="approach-val">熟练+1</span>
+                <select class="approach-select">
+                    </select>
+            </div>
+            <div class="approach-row">
+                <span class="approach-val">生疏-1</span>
+                <select class="approach-select">
+                    </select>
+            </div>
+        </div>
+    
+        <div class="section">
+            <div class="section-title">纪念物与经历</div>
+            <div class="help-text">每件物品对应一段经历。花费1燃料点可获+2加值。</div>
+            
+            <div style="margin-top:10px;">
+                <label>#1 物品:</label>
+                <input type="text" id="memento1" placeholder="衣物、疤痕、物件...">
+                <label style="font-size:0.8rem; color:#666;">经历:</label>
+                <input type="text" id="exp1" placeholder="相关的过去...">
+            </div>
+            <div style="margin-top:10px; border-top: 1px dotted #ccc; padding-top:5px;">
+                <label>#2 物品:</label>
+                <input type="text" id="memento2">
+                <label style="font-size:0.8rem; color:#666;">经历:</label>
+                <input type="text" id="exp2">
+            </div>
+            <div style="margin-top:10px; border-top: 1px dotted #ccc; padding-top:5px;">
+                <label>#3 物品:</label>
+                <input type="text" id="memento3">
+                <label style="font-size:0.8rem; color:#666;">经历:</label>
+                <input type="text" id="exp3">
+            </div>
+        </div>
+    
+        <div class="section">
+            <div class="section-title">你们的座驾</div>
+            <div class="row">
+                <div class="col" style="flex: 2;">
+                    <label>车型</label>
+                    <select id="vehicleSelect" onchange="updateVehicle()">
+                        <option value="">-- 选择座驾 --</option>
+                        <option value="sedan">SEDAN (轿车) - d6</option>
+                        <option value="wagon">STATION WAGON (旅行车) - d8</option>
+                        <option value="van">WIZARD VAN (巫师面包车) - d8</option>
+                        <option value="truck">U-HAUL TRUCK (轻型卡车) - d10</option>
+                        <option value="pickup">PAVEMENT PRINCESS (花瓶皮卡) - d12</option>
+                    </select>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <label>座驾骰</label>
+                    <input type="text" id="rideDieDisplay" readonly style="font-weight:bold; color:var(--blood-red);">
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <label>特性</label>
+                <input type="text" id="vehicleTrait" readonly>
+            </div>
+            <div style="margin-top: 10px;">
+                <label>损伤点</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="checkbox"> <input type="checkbox"> <input type="checkbox"> <input type="checkbox"> 
+                    <span class="help-text">如果骰出X则降级</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; border-top: 2px solid var(--ink-black); padding-top: 5px;">
+                <label>装备栏位</label>
+                <div class="row">
+                    <input type="text" placeholder="Gear 1">
+                    <input type="text" placeholder="Gear 2">
+                    <input type="text" placeholder="Gear 3">
+                </div>
+            </div>
+        </div>
+    
+        <div class="actions">
+            <button onclick="saveData()">💾 保存车卡 (JSON)</button>
+            <input type="file" id="fileInput" style="display:none" onchange="loadData(this)">
+            <button onclick="document.getElementById('fileInput').click()">📂 读取车卡</button>
+            <button onclick="window.print()">🖨️ 打印 / 导出PDF</button>
+        </div>
+    
+    </div>
+
+<script>
+    // 数据源：原型能力 [cite: 70-115]
+    const archetypeData = {
+        muscle: {
+            perk: "力大无穷：在所有身体类行事风格的掷骰中获得优势。",
+            flaw: "傲慢混蛋：身体类行事风格的掷骰成功后，会因过度自信导致下次恐惧结果时失去 1 燃料点。"
+        },
+        kid: {
+            perk: "初生牛犊：每场景一次，你可以选择让一次失败的掷骰改为成功。",
+            flaw: "稚气未脱：恐惧失败结果后，下次动作掷骰获得劣势。"
+        },
+        fixer: {
+            perk: "巧手匠心：不处于危险时，可花费 1 燃料点使座驾骰提升一级。",
+            flaw: "榆木脑袋：所有针对当地居民与搭车者的动作/反应掷骰获得劣势。"
+        },
+        loverboy: {
+            perk: "痴心绝对：选择另一名你暗恋的乘客；当其进行掷骰时，投掷燃料骰并将其点数加入结果。当你以这种方式成功帮助了3次动作或反应后，对方将察觉你的心意。",
+            flaw: "尴尬暗恋：在你暗恋的乘客尚未回应你的感情期间，在你所有行事风格的掷骰中，将你的行事风格等级视为降低一级，直到对方察觉你的心意"
+        },
+        mom: {
+            perk: "护犊心切：当其他玩家掷骰失败且将受伤时，你可以花费 1 燃料点，投掷燃料骰并将其点数加入结果。失败时，你需共同承担后果。",
+            flaw: "我说可以了吗？：当其他玩家采取会使自己（或他人）陷入危险的动作时，你的下次掷骰将获得劣势。"
+        },
+        dude: {
+            perk: "从容应对：每当你使用非身体类行事风格并出现恐惧结果时，你获得 1 燃料点。",
+            flaw: "不思进取：每当你使用非身体类行事风格并进行燃料检定时，GM 获得 1 恐惧点。"
+        },
+        virgin: {
+            perk: "幸存光环：你获得一个额外的死亡行动：活过这场。只要你不是唯一的幸存者，暂时退出剧情直至下个场景，并获得 1d4 燃料点",
+            flaw: "经验不足：你在每个场景中使用的第一个行事风格，在该场景的剩余时间里进行掷骰时将获得劣势。"
+        },
+        jacket: {
+            perk: "无因反叛：当你采取一个看似会导致鲁莽后果的动作时，可主动为掷骰添加劣势（最多三次），并将掷出的任何 6 点——改为增加而非减去。", 
+            flaw: "酷到没朋友：任何针对 NPC 进行的动作或反应掷骰均获得劣势——这包括其他玩家采取的动作。" // Fix: Adjust logic based on [cite: 106]
+        },
+        baddie: {
+            perk: "热辣难挡：你对任何 NPC（那个司机除外）进行的动作或反应掷骰，都视为当前限速降低 5 点。",
+            flaw: "- 痴迷追猎：那个司机觉得你特别有趣——其会无视所有其他乘客，并获得一个新动作：【绑架】3次恐惧：如果辣妹在本场景中掷出至少 3 次恐惧结果，那个司机可以尝试绑架对方，投掷 d20+杀戮骰 对抗限速。成功时，那个司机将带着昏迷中的痴迷对象逃离场景。"
+        },
+        geezer: {
+            perk: "迟暮之智：在场景中你的首次动作掷骰之前发生的每个动作掷骰，都会使你获得优势（最多3个）。",
+            flaw: "我的腰！：在你首次身体类行事风格掷骰失败后，你在该场景剩余时间里的所有掷骰都将获得劣势。"
+        }
+    };
+
+    // 数据源：座驾 [cite: 177-185]
+    const vehicleData = {
+        sedan: { die: "d6", trait: "灵活敏捷：驾驶骰投两次取其一。" },
+        wagon: { die: "d8", trait: "宽敞空间：每次开始行程获得1燃料点。" },
+        van: { die: "d8", trait: "龙烟排气：逃离司机的倒计时减少1。" },
+        truck: { die: "d10", trait: "稳步前行：无装备限制，但只能坐3人。" },
+        pickup: { die: "d12", trait: "油老虎：停车时所有燃料骰额外降低一级。" }
+    };
+    
+    // 填充行事风格列表 [cite: 143]
+    const approaches = [
+        "DO VIOLENCE (诉诸暴力)", "AVOID HARM (规避伤害)",
+        "BE CLEVER (机智应对)", "MOVE GRACEFULLY (优雅移动)",
+        "SHOW EMPATHY (展现共情)", "PUSH YOUR LUCK (碰碰运气)",
+        "TELL LIES (编造谎言)", "BE PASSIVE (保持被动)",
+        "RUN & HIDE (逃跑躲藏)", "SET TRAPS (布设陷阱)",
+        "BE BRASH (莽撞行事)", "DEFENSIVE DRIVING (防御驾驶)",
+        "ENDURE PAIN (忍受疼痛)", "FAKE IT (装模作样)",
+        "BE CHARMING (施展魅力)", "REPAIR SOMETHING (修理某物)",
+        "DRIVE FAST (狂飙疾驰)", "BE DISTRACTING (干扰牵制)",
+        "BREAK SOMETHING (破坏某物)", "BE HOT (散发魅力)",
+        "BE RECKLESS (不计后果)", "BE CAUTIOUS (小心行事)",
+        "MAKE A PLAN (制定计划)", "BE CHAOTIC (搅乱局势)"
+    ];
+    
+    window.onload = function() {
+        const selects = document.querySelectorAll('.approach-select');
+        selects.forEach(sel => {
+            const defaultOpt = document.createElement('option');
+            defaultOpt.text = "---";
+            sel.add(defaultOpt);
+            approaches.forEach(app => {
+                const opt = document.createElement('option');
+                opt.value = app;
+                opt.text = app;
+                sel.add(opt);
+            });
+        });
+    };
+    
+    function updateArchetype() {
+        const val = document.getElementById('archetypeSelect').value;
+        if(archetypeData[val]) {
+            document.getElementById('perkText').value = archetypeData[val].perk;
+            document.getElementById('flawText').value = archetypeData[val].flaw;
+        } else {
+            document.getElementById('perkText').value = "";
+            document.getElementById('flawText').value = "";
+        }
+    }
+    
+    function updateVehicle() {
+        const val = document.getElementById('vehicleSelect').value;
+        if(vehicleData[val]) {
+            document.getElementById('rideDieDisplay').value = vehicleData[val].die;
+            document.getElementById('vehicleTrait').value = vehicleData[val].trait;
+        } else {
+            document.getElementById('rideDieDisplay').value = "";
+            document.getElementById('vehicleTrait').value = "";
+        }
+    }
+    
+    // 保存功能
+    function saveData() {
+        const data = {};
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if(input.type === 'checkbox') {
+                data[input.id || Math.random()] = input.checked; // Checkboxes need IDs ideally, simpler here
+            } else {
+                data[input.id] = input.value;
+            }
+        });
+        
+        // 特殊处理 Approach Selects 因为它们是 class
+        const approachSelects = document.querySelectorAll('.approach-select');
+        data['approaches'] = Array.from(approachSelects).map(s => s.value);
+    
+        const json = JSON.stringify(data);
+        const blob = new Blob([json], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "hmd_character.json";
+        a.click();
+    }
+    
+    // 读取功能
+    function loadData(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = JSON.parse(e.target.result);
+            
+            // 恢复常规输入
+            for (const key in data) {
+                if (key === 'approaches') continue;
+                const el = document.getElementById(key);
+                if (el) el.value = data[key];
+            }
+    
+            // 恢复 Approaches
+            if(data['approaches']) {
+                const selects = document.querySelectorAll('.approach-select');
+                data['approaches'].forEach((val, index) => {
+                    if(selects[index]) selects[index].value = val;
+                });
+            }
+            
+            // 触发更新以显示正确的描述文本
+            updateArchetype();
+            updateVehicle();
+        };
+        reader.readAsText(file);
+    }
+</script>
+</body>
+</html>
