@@ -4,232 +4,446 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>匕首工坊 · 工具索引</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== 全局重置 & 基础 ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-deep: #080807;
+            --bg-surface: #12100e;
+            --bg-card: #181512;
+            --bg-card-hover: #1e1a16;
+            --border: #27231e;
+            --border-hover: #5a4538;
+            --accent: #c49b6c;
+            --accent-rgb: 196, 155, 108;
+            --accent-red: #8b3a2a;
+            --accent-red-rgb: 139, 58, 42;
+            --text-primary: #e0d6c8;
+            --text-secondary: #8a7e72;
+            --text-tertiary: #5a4e44;
+            --font-heading: "Cinzel", Georgia, serif;
+            --font-body: "Source Sans 3", system-ui, sans-serif;
+            --radius-container: 20px;
+            --radius-card: 14px;
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #0d0d0d;
-            background: radial-gradient(ellipse at 50% 0%, #1a1210 0%, #0d0d0d 100%);
+            background: var(--bg-deep);
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #cdc5b7;
+            font-family: var(--font-body);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem 1rem;
+            padding: clamp(1rem, 3vw, 2.5rem) 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景纹理：CSS 噪点 + 径向光晕 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(var(--accent-rgb), 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 60% at 80% 80%, rgba(var(--accent-red-rgb), 0.04) 0%, transparent 70%);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
         }
 
         .container {
             max-width: 880px;
             width: 100%;
-            background: rgba(16, 14, 12, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid #2a2220;
-            border-radius: 20px;
-            padding: 2.5rem 2rem 2rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(120, 60, 40, 0.1) inset;
+            background: rgba(18, 16, 14, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-container);
+            padding: clamp(1.8rem, 4vw, 2.8rem) clamp(1.2rem, 3vw, 2.2rem);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(var(--accent-rgb), 0.04);
+            position: relative;
+            z-index: 1;
         }
 
         /* ===== 标题 ===== */
         .header {
             text-align: center;
-            margin-bottom: 2.8rem;
+            margin-bottom: clamp(2rem, 4vw, 3rem);
             position: relative;
         }
+        .header-mark {
+            display: inline-block;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin-bottom: 1.2rem;
+        }
         .header h1 {
-            font-weight: 500;
-            font-size: 1.6rem;
-            letter-spacing: 4px;
-            color: #d4b8a0;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+            letter-spacing: 0.12em;
+            color: var(--text-primary);
             text-transform: uppercase;
         }
-        .header h1 span {
-            color: #b34a3a;
-            font-weight: 400;
+        .header h1 .accent {
+            color: var(--accent-red);
         }
         .header .subtitle {
-            font-size: 0.75rem;
-            color: #6a5c52;
-            letter-spacing: 2px;
-            margin-top: 0.3rem;
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.16em;
+            margin-top: 0.4rem;
+            text-transform: uppercase;
         }
 
-        /* ===== 分区标题 ===== */
+        /* ===== 分区 ===== */
         .section {
-            margin-bottom: 2.5rem;
+            margin-bottom: clamp(1.5rem, 3vw, 2.2rem);
         }
-        .section:last-child {
+        .section:last-of-type {
             margin-bottom: 0;
         }
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #a07060;
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.12);
+        }
+        .section-head .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+        .section-head .label {
+            font-family: var(--font-heading);
+            font-weight: 500;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 1.2rem;
-            padding-left: 0.5rem;
-            border-left: 3px solid #8b3a2a;
-            line-height: 1;
+        }
+        .section-head .label.red {
+            color: var(--accent-red);
         }
 
         /* ===== 卡片网格 ===== */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+            gap: 0.9rem;
         }
         .card {
-            background: #1a1614;
-            border: 1px solid #2e2824;
-            border-radius: 14px;
-            padding: 1.2rem 1rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 1.3rem 1.1rem 1.1rem;
             text-decoration: none;
-            color: #cdc5b7;
-            transition: all 0.25s ease;
-            position: relative;
+            color: var(--text-primary);
+            transition: all 0.35s var(--ease-out);
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.35s var(--ease-out);
+            box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.25);
+            pointer-events: none;
         }
         .card:hover {
-            border-color: #7a4a3a;
-            background: #1f1a17;
-            box-shadow: 0 8px 30px rgba(140, 40, 30, 0.15);
-            transform: translateY(-2px);
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(var(--accent-rgb), 0.08) inset;
         }
+        .card:hover::after {
+            opacity: 1;
+        }
+        .card:active {
+            transform: translateY(-1px);
+            transition-duration: 0.1s;
+        }
+
+        /* 卡片左侧装饰线 */
+        .card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 2px;
+            background: var(--border);
+            border-radius: 0 1px 1px 0;
+            transition: background 0.35s var(--ease-out);
+        }
+        .card:hover::before {
+            background: var(--accent);
+        }
+
         .card-icon {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: #a07060;
-            line-height: 1;
+            margin-bottom: 0.6rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.35s var(--ease-out);
         }
+        .card-icon svg {
+            width: 1.3rem;
+            height: 1.3rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        .card:hover .card-icon {
+            color: var(--accent-red);
+        }
+
         .card-title {
+            font-family: var(--font-heading);
             font-weight: 600;
-            font-size: 0.95rem;
-            color: #e8d9c8;
-            margin-bottom: 0.2rem;
-            letter-spacing: 0.3px;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
+            letter-spacing: 0.04em;
         }
         .card-desc {
-            font-size: 0.78rem;
-            color: #7a6c62;
-            line-height: 1.5;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
             flex: 1;
         }
-        .card .enter-btn {
-            margin-top: 0.7rem;
+        .card-arrow {
+            margin-top: 0.8rem;
             align-self: flex-end;
-            font-size: 0.7rem;
-            color: #b34a3a;
-            background: transparent;
-            border: 1px solid #3a2a22;
-            padding: 0.2rem 0.7rem;
-            border-radius: 5px;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
+            font-family: var(--font-heading);
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            transition: color 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            text-transform: uppercase;
         }
-        .card:hover .enter-btn {
-            border-color: #b34a3a;
-            background: rgba(180, 50, 30, 0.1);
+        .card-arrow svg {
+            width: 0.8rem;
+            height: 0.8rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .card:hover .card-arrow {
+            color: var(--accent-red);
+            transform: translateX(3px);
         }
 
         /* ===== 页脚 ===== */
         .footer {
-            margin-top: 2.5rem;
+            margin-top: clamp(1.5rem, 3vw, 2.2rem);
             padding-top: 1rem;
-            border-top: 1px solid #2a2220;
+            border-top: 1px solid var(--border);
             text-align: center;
-            font-size: 0.7rem;
-            color: #4a3e36;
-            letter-spacing: 1px;
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
         }
         .footer a {
-            color: #7a5c4a;
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .footer a svg {
+            width: 0.85rem;
+            height: 0.85rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
         .footer a:hover {
-            color: #b34a3a;
+            color: var(--accent);
         }
+        .footer .sep {
+            color: var(--border);
+        }
+
+        /* ===== 入场动效 ===== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .anim-in {
+            animation: fadeUp 0.6s var(--ease-out) both;
+        }
+        .anim-1 { animation-delay: 0.05s; }
+        .anim-2 { animation-delay: 0.12s; }
+        .anim-3 { animation-delay: 0.19s; }
+        .anim-4 { animation-delay: 0.26s; }
+        .anim-5 { animation-delay: 0.33s; }
+        .anim-6 { animation-delay: 0.40s; }
 
         /* ===== 响应式 ===== */
         @media (max-width: 500px) {
             .container {
-                padding: 1.5rem 1rem;
+                border-radius: 14px;
             }
             .header h1 {
-                font-size: 1.3rem;
+                font-size: 1.25rem;
+                letter-spacing: 0.08em;
             }
             .card-grid {
                 grid-template-columns: 1fr;
             }
+            .card {
+                padding: 1.1rem 1rem 1rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .anim-in { animation: none; }
+            .card { transition: none; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 标题 -->
-        <div class="header">
-            <h1>🗡️ <span>匕之</span>工坊</h1>
-            <div class="subtitle">Rink · 个人工具索引</div>
-        </div>
+        <header class="header anim-in anim-1">
+            <div class="header-mark"></div>
+            <h1><span class="accent">匕首</span>工坊</h1>
+            <p class="subtitle">Rink · 个人工具索引</p>
+        </header>
 
-        <!-- 通用 -->
-        <div class="section">
-            <div class="section-title">通用</div>
+        <!-- 通用工具 -->
+        <div class="section anim-in anim-2">
+            <div class="section-head">
+                <span class="dot"></span>
+                <span class="label">通用 · Daggerheart</span>
+            </div>
             <div class="card-grid">
-                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/enemy.html" target="_blank">
-                    <div class="card-icon">👹</div>
+                <a class="card anim-in anim-3" href="https://rinkcx.github.io/DH_TOOLS/enemy.html" target="_blank" rel="noopener">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L9 7H3l3 7-2 6h8l2 4h4"/><circle cx="12" cy="9" r="1.5"/></svg>
+                    </div>
                     <div class="card-title">敌人卡片制作</div>
-                    <div class="card-desc">设计敌人卡。</div>
-                    <div class="enter-btn">→ 进入</div>
+                    <div class="card-desc">设计敌对生物卡，定义属性、武器与战术动机。</div>
+                    <div class="card-arrow">
+                        进入 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </a>
-                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/scene.html" target="_blank">
-                    <div class="card-icon">🏰</div>
+                <a class="card anim-in anim-4" href="https://rinkcx.github.io/DH_TOOLS/scene.html" target="_blank" rel="noopener">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                    </div>
                     <div class="card-title">场景卡片制作</div>
-                    <div class="card-desc">设计场景卡。</div>
-                    <div class="enter-btn">→ 进入</div>
+                    <div class="card-desc">设计场景卡，设定环境趋向与叙事特性。</div>
+                    <div class="card-arrow">
+                        进入 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </a>
-                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E3%80%90%E6%9C%80%E6%96%B0%E3%80%91%E5%8C%95%E9%A6%96%E4%B9%8B%E5%BF%83%E6%95%B4%E5%90%88%E6%A1%86%E6%9E%B6_1222%E7%89%88%E6%9C%AC.html" target="_blank">
-                    <div class="card-icon">⚔️</div>
+                <a class="card anim-in anim-5" href="https://rinkcx.github.io/DH_TOOLS/%E3%80%90%E6%9C%80%E6%96%B0%E3%80%91%E5%8C%95%E9%A6%96%E4%B9%8B%E5%BF%83%E6%95%B4%E5%90%88%E6%A1%86%E6%9E%B6_1222%E7%89%88%E6%9C%AC.html" target="_blank" rel="noopener">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
                     <div class="card-title">遭遇构筑器</div>
-                    <div class="card-desc">整合框架 v1222 · 适配敌人/卡片制作器，快速编排战斗。</div>
-                    <div class="enter-btn">→ 进入</div>
+                    <div class="card-desc">整合框架 v1222 · 环境管理 + 敌人追踪 + 战术速查，快速编排战斗。</div>
+                    <div class="card-arrow">
+                        进入 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </a>
             </div>
         </div>
 
         <!-- PBDH -->
-        <div class="section">
-            <div class="section-title">PBDH</div>
+        <div class="section anim-in anim-2" style="animation-delay: 0.35s">
+            <div class="section-head">
+                <span class="dot" style="background: var(--accent-red);"></span>
+                <span class="label red">PBDH · 我车何</span>
+            </div>
             <div class="card-grid">
-                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9FGM%E5%B7%A5%E5%85%B7%E6%94%B9.html" target="_blank">
-                    <div class="card-icon">🎮</div>
-                    <div class="card-title">《我车何》GM 工具</div>
-                    <div class="card-desc">GM主持面板 · 限速/恐惧/座驾/倒计时全面控制。</div>
-                    <div class="enter-btn">→ 进入</div>
+                <a class="card anim-in anim-3" style="animation-delay: 0.40s" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9FGM%E5%B7%A5%E5%85%B7%E6%94%B9.html" target="_blank" rel="noopener">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <div class="card-title">GM 主持面板</div>
+                    <div class="card-desc">限速、恐惧、座驾、倒计时全面控制，一站式主持中枢。</div>
+                    <div class="card-arrow">
+                        进入 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </a>
-                <a class="card" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9F%E7%8E%A9%E5%AE%B6%E8%BD%A6%E5%8D%A1%E5%99%A8.html" target="_blank">
-                    <div class="card-icon">📋</div>
-                    <div class="card-title">《我车何》玩家车卡器</div>
-                    <div class="card-desc">创建亡命车手与座驾。</div>
-                    <div class="enter-btn">→ 进入</div>
+                <a class="card anim-in anim-4" style="animation-delay: 0.47s" href="https://rinkcx.github.io/DH_TOOLS/%E6%88%91%E7%9A%84%E8%BD%A6%E6%8A%80%E5%A6%82%E4%BD%95%EF%BC%9F%E7%8E%A9%E5%AE%B6%E8%BD%A6%E5%8D%A1%E5%99%A8.html" target="_blank" rel="noopener">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                    </div>
+                    <div class="card-title">玩家车卡器</div>
+                    <div class="card-desc">创建亡命车手与座驾，快速生成角色与载具配置。</div>
+                    <div class="card-arrow">
+                        进入 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </a>
             </div>
         </div>
 
         <!-- 页脚 -->
-        <div class="footer">
-            <a href="https://github.com/rinkcx/DH_TOOLS" target="_blank">📂 GitHub 仓库</a> · 
-            <span>v1.1</span> · 
-            <span>🗡️ 匕首之心</span>
-        </div>
+        <footer class="footer anim-in anim-6" style="animation-delay: 0.55s">
+            <a href="https://github.com/rinkcx/DH_TOOLS" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+                GitHub
+            </a>
+            <span class="sep">·</span>
+            <span>v1.1</span>
+            <span class="sep">·</span>
+            <span>匕首之心 · Daggerheart</span>
+        </footer>
     </div>
 </body>
 </html>
