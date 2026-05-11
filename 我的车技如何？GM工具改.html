@@ -394,10 +394,12 @@ body.countdown-zero .glove-box {
                     <div style="flex:1; min-width:250px;">
                         <h3 style="color:#f1c40f; border-color:#f1c40f;">行为</h3>
                         <ul style="padding-left:20px; font-size:0.9rem;">
-                            <li><b>惊恐:</b> 花费X恐惧，修正玩家判定X点。</li>
-                            <li><b>路怒:</b> 破坏场景物体或NPC。</li>
-                            <li><b>极速:</b> 提升当前限速。</li>
-                            <li><b>偏离:</b> 倒计时归零时暂时被甩掉。</li>
+			    <li><b>躲开那个司机:</b> 司机首次出现，设置玩家数量的倒计时，倒计时归零时司机暂时被偏离。司机再次出现，倒计时初始值+1。</li>
+                            <li><b>惊恐:</b> 花费X恐惧点，破坏NPC或物体，对抗限速，成功可调整倒计时X点。</li>
+                            <li><b>路怒:</b> 驾驶时，花费1恐惧点，对座驾造成伤害。</li>
+                            <li><b>极速:</b> 驾驶时，花费1恐惧点，提高当前限速1点。</li>
+			    <li><b>催眠:</b> 每名乘客花费1恐惧点，拉入黑暗噩梦，玩家动作掷骰失败降低一级燃料骰，直至司机偏离。</li>
+                            <li><b>偏离:</b> 司机无法被杀死，暂时被击退或者甩掉。场景结束，每位玩家获得1d4燃料点或提升一级燃料骰。</li>
                         </ul>
                     </div>
                 </div>
@@ -405,11 +407,11 @@ body.countdown-zero .glove-box {
 
             <div class="scrap map-card">
                 <div class="tape"></div>
-                <h2>站点 (STOPS)</h2>
+                <h2>站点 (当你抵达新的站点时，你的燃料骰等级会降低一级，GM 将从以下选项中选择：)</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                    <div class="stop-type safe" style="flex:1;"><strong>休息站点 (REST)</strong><br>安全区。每场一次。全员+3燃料。</div>
-                    <div class="stop-type trade" style="flex:1;"><strong>维修站点 (PIT)</strong><br>交易点。花费燃料点购买：维修、汽油、弹药。</div>
-                    <div class="stop-type danger" style="flex:1;"><strong>交通站点 (TRAFFIC)</strong><br>糟糕。警察拦停、故障、堵车。</div>
+                    <div class="stop-type safe" style="flex:1;"><strong>休息站点 (REST)</strong><br>安全区。每场一次。每位乘客描述这个隐秘地点的某个细节以及如何休息。随后他们可以各自获得3燃料点，并选择是否将限速降低1点。</div>
+                    <div class="stop-type trade" style="flex:1;"><strong>维修站点 (PIT)</strong><br>遍布当地居民与搭车者。至少有1名当地居民与1名搭车者。让其提供服务以补充玩家燃料骰。</div>
+                    <div class="stop-type danger" style="flex:1;"><strong>交通站点 (TRAFFIC)</strong><br>迫使乘客采取行动，拖延乘客逃脱的危险障碍。GM可随时触发但会计入站点总数。如：警察拦停、引擎熄火、卡车休息站邪教徒。</div>
                 </div>
             </div>
 
@@ -419,22 +421,24 @@ body.countdown-zero .glove-box {
                 <div class="npc-entry">
                     <span class="npc-name">店主 (Shopkeeper)</span>
                     <span class="npc-detail">
-                        售卖：弹药 [3燃料]、汽油 [3燃料]。<br>
-                        威吓：[倒计时3]，可能报警 (1/6概率被拦停)。
+                        资源：弹药-枪械可用 [3燃料]、汽油-燃料骰提升1级 [4燃料]。<br>
+			恩惠：如果无法支付，只要说服店长你会把包裹送达下一站，其可免费提供其中一项资源。<br>
+                        威吓：通过充分欺凌[倒计时3]，店长会交出所有资源——但事后会举报你。[每段行程1/6概率被拦停]。
                     </span>
                 </div>
                 <div class="npc-entry">
                     <span class="npc-name">警长 (Sheriff)</span>
                     <span class="npc-detail">
-                        持有：枪械、警车 (均须窃取, [倒计时3])。<br>
-                        性格：不相信司机的传说，施压会激怒他。
+                        资源：枪械[需窃取]，警车 [需窃取, 倒计时3]<br>
+                        性格：不相信神经病司机的事情，如果在此问题上施压会变得愤怒。
                     </span>
                 </div>
                 <div class="npc-entry">
                     <span class="npc-name">机修工 (Mechanic)</span>
                     <span class="npc-detail">
-                        售卖：小修(提升燃料骰一级, [3燃料])、大修(提升座驾骰一级, [10燃料])。<br>
-                        恩惠：去废车场找箱子 [倒计时4]。
+                        资源：小修-将你的燃料骰提升一级[3燃料]；大修-将其提升至最大等级[10燃料]<br>
+                        恩惠：将他们的卡车去废车场取回一箱零件，他们就会彻底修理你的座驾。<br>
+			找到箱子：到达目的地，无人迎接，箱子也无迹可寻。每次掷出恐惧结果，玩家都会在废料堆找到当地居民的残肢。 [倒计时4]。
                     </span>
                 </div>
             </div>
@@ -443,24 +447,29 @@ body.countdown-zero .glove-box {
                 <div class="tape"></div>
                 <h3>搭车者 (Hitchhikers)</h3>
                 <div class="npc-entry">
-                    <span class="npc-name">绅士 (The Gentleman)</span>
+                    <span class="npc-name">绅士-1站点(The Gentleman)</span>
                     <span class="npc-detail">
-                        <b style="color:#27ae60">增益:</b> 司机召唤费用双倍恐惧点。<br>
-                        <b style="color:#c0392b">缺陷:</b> 你的恐惧结果导致失去1燃料点。
+			<b style="color:#000000">出现:</b>为每名乘客支付3燃料点<br>
+                        <b style="color:#27ae60">增益:</b> 同行期间，GM需要花费两倍恐惧点召唤司机<br>
+                        <b style="color:#c0392b">缺陷:</b> 在此行程，在你投掷恐惧结果时，失去1燃料点。
                     </span>
                 </div>
                 <div class="npc-entry">
-                    <span class="npc-name">醉鬼 (The Drunk)</span>
+                    <span class="npc-name">醉汉/醉妞-2站点(The Drunk)</span>
                     <span class="npc-detail">
-                        <b style="color:#27ae60">增益:</b> 缓解压力的掷骰获得优势。<br>
-                        <b style="color:#c0392b">缺陷:</b> 除非花费1燃料，否则社交掷骰劣势。
+			<b style="color:#000000">出现:</b>认识能完全修复你座驾的机修工，条件是载TA一程<br>
+                        <b style="color:#27ae60">增益:</b> 在路上时，缓解压力的掷骰获得优势。<br>
+                        <b style="color:#c0392b">缺陷:</b> 与团队同行时，除非花费1燃料，否则所有其他行事方式的掷骰均获得劣势。
                     </span>
                 </div>
                 <div class="npc-entry">
-                    <span class="npc-name">纨绔子弟 (Trust Fund)</span>
+                    <span class="npc-name">纨绔子弟-3站点(Trust Fund)</span>
                     <span class="npc-detail">
-                        <b style="color:#27ae60">增益:</b> 抵达站点时燃料骰不降级。<br>
-                        <b style="color:#c0392b">缺陷:</b> 1/4概率引来飞车党 [倒计时7]。
+			<b style="color:#000000">出现:</b>立即将一名玩家的燃料骰恢复至d12，送达目的地后为团队其他成员恢复燃料骰<br>
+                        <b style="color:#27ae60">增益:</b> 与团队同行期间，抵达站点时燃料骰不降级。<br>
+                        <b style="color:#c0392b">缺陷:</b> 每个站点有1/4概率引来飞车党，对方视图窃取你的座驾。<br>
+			<b style="color:#c0392b">保卫你的汽车</b>：[倒计时7;若驾车逃离他们会尾随追击]。飞车党可使用司机的杀戮行动。击败飞车党时，纨绔子弟会给予报酬[全员获得3燃料点]。若司机出现，飞车党将逃窜 。
+
                     </span>
                 </div>
             </div>
