@@ -479,29 +479,53 @@ body.countdown-zero .glove-box {
     <div id="rules" class="folder-content">
         <h1 style="text-align:center; font-family:Impact; font-size:3rem; text-transform:uppercase; margin-bottom:40px;">游戏循环 <span style="color:var(--blood)">THE LOOP</span></h1>
         
+<div class="loop-step">
+            <div class="step-num">00</div>
+            <div class="step-content">
+                <h3>游戏循环 </h3>
+                <ul>
+                    <li>逃离那个司机</b></li>
+                    <li>在路上消磨时间，获得燃料点。</li>
+                    <li>在站点加油，花费燃料点。</li>
+		    <li>击退那个司机。</li>
+		    <li>重复第一步。</li>
+		    <li>抵达最后冲刺阶段。</li>
+                </ul>
+
+            </div>
+        </div>
+
+
         <div class="loop-step">
             <div class="step-num">01</div>
             <div class="step-content">
-                <h3>遭遇与逃离 (EVADE)</h3>
-                <p>当<b>追逐指示物</b>满额或GM花费恐惧时，司机出现。</p>
+                <h3>在路上 (ON THE ROAD)</h3>
+		<p>限速：限速是你在进行<b>动作掷骰</b>时需要达到或超越的目标数值。会在游戏过程中动态增减。所有即兴掷骰需与限速对抗。</p>
+		<p>一陀烂铁：限速达到或超过30，<b>游戏立即结束</b>。GM将描述<b>那个司机</b>如何以烈焰与钢铁为形的狂怒，歼灭所有玩家。</p>
+                <p>在行程中，当GM获得恐惧点时，同时获得1追逐指示物。当<b>追逐指示物</b>累计至6时：</p>
                 <ul>
-                    <li>GM设置一个<b>倒计时</b> (如：逃离高速 [4])。</li>
-                    <li>玩家必须采取行动减少倒计时。</li>
-                    <li>当倒计时归零，司机被<b>偏离</b> (Detoured)，暂时甩掉。玩家每人获 1d4 燃料。</li>
+                    <li>司机出现</b></li>
+                    <li>GM获得等同于玩家数量的恐惧点。</li>
+                    <li>启动倒计时，其数值等同于玩家数量的两倍</b></li>
+		    <li>清空所有追逐指示物</b></li>
                 </ul>
+
             </div>
         </div>
 
         <div class="loop-step">
             <div class="step-num">02</div>
             <div class="step-content">
-                <h3>公路旅程 (ON THE ROAD)</h3>
+                <h3>路程行动 (STRETCH MOVES)</h3>
+		<p>行程：是指高速公路、乡间小路和支路中，你与下一个站点之间的路段。</p>
+		<p>站点：站点是你可以下车活动腿脚、为座驾与你自己填充补给的地点。每个站点之间的路段数量取决于当前的限速。</p>
                 <p>在前往下一站的每一段行程中，每位乘客轮流获得<b>聚焦</b>，必须从以下选择一项：</p>
                 <ul>
-                    <li><b>直面恐惧:</b> 描述反应，下注燃料点并掷骰。成功保留点数并削弱 GM 恐惧；失败则失去点数。</li>
-                    <li><b>建立联系:</b> 描述互动并掷骰。成功建立羁绊（可花费资源助其生存）；失败则暂时切断联系。</li>
-                    <li><b>消磨时间:</b> 描述行为并掷骰。成功推进旅程；失败则<b>限速 +1</b>，且必须由另一名玩家再次聚焦。</li>
+                    <li><b>直面恐惧:</b> 描述对恐惧的反应，下注任意燃料点并进行动作掷骰。成功保留燃料点，GM失去等量恐惧点；失败则失去燃料点。无论结果如何，本行程结束。</li>
+                    <li><b>建立联系:</b> 描述如何与其他乘客建立联系，并进行动作掷骰。成功建立羁绊（可花费你的资源让其进行一次生存行动）；失败，直到下个站点结束前，你们无法互相帮助。无论结果如何，本行程结束。</li>
+                    <li><b>消磨时间:</b> 描述如何积极消磨时间并进行动作掷骰。成功时，时光飞逝，你抵达下一个站点；失败时，度秒如年。将限速提高 1 点，然后选择另一名玩家获得聚焦并进行路程行动。</li>
                 </ul>
+		<p>在路上，每位乘客必须轮流获得一次聚焦后，才可再次被聚焦。同样，乘客们每次离开站点时都必须轮换驾驶员。</p>
                 <p style="font-style:italic; font-size:0.9rem; color:#555;">提示：行程数量取决于限速 (1-15: 3段 | 16-20: 2段 | 21+: 1段)。</p>
             </div>
         </div>
@@ -511,31 +535,55 @@ body.countdown-zero .glove-box {
             <div class="step-content">
                 <h3>站点休整 (THE STOP)</h3>
                 <p>抵达站点的瞬间，<b>燃料骰等级降低一级</b> (D12->D10...)。</p>
-                <p>如果燃料骰低于 D4，即为<b>燃油耗尽</b>。</p>
-                <p>在此阶段，与 NPC 互动，花费燃料点购买物资（修车、加油、弹药）。</p>
+	        <p>所有玩家燃料骰都处于 d0 时，你们就燃油耗尽了，并且无法使用你们的座驾，直到每位玩家将自己的燃料骰增加到至少 d4。
+                <p>在此阶段，与当地居民互动，花费燃料点购买物资与服务并结识不同的搭车者</p>
             </div>
         </div>
 
         <div class="loop-step">
             <div class="step-num">04</div>
             <div class="step-content">
-                <h3>最后冲刺 (HOME STRETCH)</h3>
-                <p>单次游戏：抵达第2个站点（或游戏时间剩1小时）进入冲刺。<br>
-                   迷你战役：站点数=玩家人数时进入冲刺。</p>
-                <p style="font-style:italic; font-size:0.9rem; color:#555;"><b>冲刺阶段时</b>限速变为最终倒计时。倒计时归零，司机被永久击败。GM获得2点恐惧点，而非1点。</p>
+                <h3>冲刺阶段 (HOME STRETCH)</h3>
+                <p>单次游戏：抵达第2个站点（或游戏时间剩1小时）你便进入了最后冲刺阶段。<br>
+                   迷你战役：当你的站点数量等同团队成员人数时，你便进入了最后冲刺阶段。</p>
+                <p style="font-style:italic; font-size:0.9rem; color:#555;"><b>冲刺阶段时</b>限速变为最终倒计时。倒计时归零，司机被永久击败。此阶段GM获得2点恐惧点，而非1点。</p>
             </div>
         </div>
+
+
         
         <div style="background:#222; color:#fff; padding:20px; border:3px solid var(--blood); text-align:center; transform:rotate(-1deg); margin-top:20px;">
-            <h3 style="margin:0; color:var(--blood); font-family:Impact;">⚠️ 生存行动 (DEATH MOVES)</h3>
-            <p style="margin:10px 0;">当受到致命伤害时，你可以执行以下操作来勉强存活：</p>
+            <h3 style="margin:0; color:var(--blood); font-family:Impact;">⚠️ 生存行动 </h3>
+            <p style="margin:10px 0;">本游戏中所有伤害均能致命；多数致死的东西都会将你置于死地。当你受到伤害时，可通过以下方式执行生存行动来侥幸逃脱死亡，从以下选项中选择一项，然后描述你是如何侥幸逃脱死亡：</p>
             <div style="font-weight:bold; font-size:1.1rem; display:flex; justify-content:space-around; flex-wrap:wrap;">
-                <span>1. 消耗全部燃料点</span>
-                <span>2. 限速 +1</span>
-                <span>3. 燃料骰降一级</span>
+                <span>1. 花费全部燃料点。</span>
+                <span>2. 将当前限速提高 1 点。</span>
+                <span>3. 将你的燃料骰降低一级。</span>
             </div>
         </div>
+
+<div style="background:#1a1a1a; color:#ddd; padding:12px 18px; border:3px solid var(--blood,#c0392b); transform:rotate(-1deg); box-shadow:0 0 18px rgba(220,20,20,0.25); margin-top:20px; text-align:left;">
+  <h3 style="text-align:center; color:var(--blood,#c0392b); font-family:Impact; margin:0 0 6px;">⚠️ 死亡抉择</h3>
+  <p style="text-align:center; margin:0 0 8px; font-style:italic;">当你收到伤害而不选择生存行动时，请从以下选项中选择一项执行：</p>
+  <ul style="margin:0; padding-left:1.5em; font-size:0.95rem; line-height:1.5;">
+    <li style="margin-bottom:6px;"><b>殊死一搏：</b>向司机发起绝望一击。<br>
+      <span style="margin-left:1.5em;">- 命中GM，则GM失去全部恐惧点，你获得等量燃料点并幸存。</span><br>
+      <span style="margin-left:1.5em;">- 失败时，<b style="color:#ff5555;">你将死亡</b>，且GM恐惧点翻倍。</span>
+    </li>
+    <li style="margin-bottom:6px;"><b>自我牺牲：</b>奋不顾身引开司机注意力让<b>团队得以逃脱</b>——<b style="color:#ff5555;">你英勇牺牲</b>。<br>
+      <span style="margin-left:1.5em;">- 司机倒计时清零，GM获得 <b style="color:#ff5555;">5 恐惧点</b>。</span>
+    </li>
+  </ul>
+</div>
+
+        </div>
+
+
+
     </div>
+
+	
+
 
     <div id="dashboard" class="dashboard-wrapper">
         <div class="dashboard-frame">
